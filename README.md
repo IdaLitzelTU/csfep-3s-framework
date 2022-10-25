@@ -1,7 +1,7 @@
 # CSFEP - 3S FRAMEWORK
 ##### (Climate Smart Forest Economy Program)  
 
-This repo uses fast api and poetry as the dependency management tool.
+This repo uses FastAPI and poetry as the dependency management tool.
 
 ## Installations
 All dependencies are stored in the requirements.txt file. To install run: 
