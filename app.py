@@ -57,7 +57,7 @@ def get_model_versions():
     """
     returns all existing model versions
     """
-    return {"message": "OK", "results": ";".join(model_export.keys())}
+    return {"message": "OK", "results": list(model_export.keys())}
 
 
 @app.get("/model/{version}")
@@ -74,7 +74,7 @@ def get_model_information(version: str):
         return {
             "message": "error",
             "results": f"""Cannot find version specified. Version specified is {version}. 
-                                                Only following version are available {', '.join(list(model_export.keys()))}""",
+                                                Only following version are available {list(model_export.keys())}""",
         }
 
     return {"message": "OK", "results": response}
