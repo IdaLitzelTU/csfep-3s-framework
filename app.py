@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from client import model_export
-from client.parameters import model_parameters
 
 app = FastAPI()
 app.add_middleware(
@@ -31,7 +30,7 @@ data = {
     "mass_ar_st_it": 0.00043,
     "mass_ar_con_t": 0.02347,
     "mass_ar_brick": 0.661,
-    "massARcon": 0.451,
+    "mass_ar_con": 0.451,
     "mass_ar_mt_ps_co": 0.209,
     "mass_ar_mt_ps_rs": 0.194,
     "mass_ar_mt_en_co": 0.06,
@@ -57,7 +56,7 @@ def get_model_versions():
     """
     returns all existing model versions
     """
-    return {"message": "OK", "results": ";".join(model_export.keys())}
+    return {"message": "OK", "results": list(model_export.keys())}
 
 
 @app.get("/model/{version}")
@@ -74,7 +73,7 @@ def get_model_information(version: str):
         return {
             "message": "error",
             "results": f"""Cannot find version specified. Version specified is {version}. 
-                                                Only following version are available {', '.join(list(model_export.keys()))}""",
+                                                Only following version are available {list(model_export.keys())}""",
         }
 
     return {"message": "OK", "results": response}
@@ -99,7 +98,7 @@ def run_model_version(version, body=data):
         model_executable = model.get("exec")
         try:
             # TODO: save the body of the input
-            results = model_executable(data=body, params=model_parameters)
+            results = model_executable(data=body, params=model.get("model_parameters"))
         except Exception as e:
             return {"message": "error", "results": f"{e}"}
     else:
