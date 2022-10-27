@@ -24,14 +24,14 @@ uvicorn app:app --reload
 ```
 
 ## Project structure
-1. Client folder - Contains the versions of the model. Every version should be stored in a different file inside the folder following the template.py file structure and named with the version number e.g. for version 1: ***v1.py***
-
-2. Framework folder - Contains file csfep_3s.py which has the functions implemented in the model version files.   
-
-3. app.py  
-This is the main file that contains the project api. It has 2 endpoints:
-    > /model  
-    > /dataset
+| Path | Content |
+|---------------|---------------------|
+|1. `/client/` |Client folder contains the versions of the model. Every version should be stored in a different file inside the folder following the template.py file structure and named with the version number e.g. for version 1: ***v1.py***|
+|2. `/client/template.py` |Template on the structure of a model version file|
+|3. `/client/v1.py` |Model version 1 file|
+|4. `/client/__init__.py` | All model version files stored in the client folder are imported in this file.|
+|5. `/framework/csfep_3s.py` | Contains functions implemented in the model version files.|
+|6. `app.py` | This is the main file that contains the project api. It has 2 endpoints: <br> /model <br> /dataset|
 
 
 **To get all model versions:**  
@@ -62,10 +62,10 @@ Example:
 "http://127.0.0.1:8000/model/v2"
 ```
 
-### Adding a model version
+## Adding a model version
 
 To add a model version, create a version .py file in the client folder following the structure in the template.py file.  
-The file is named by version number i.e. if the model is version 2 the file name would be ***v2.py***  
+Name the file by version i.e. if the model is version 2 the file name would be ***v2.py***  
 
 It should contain 4 attributes:  
 1. **meta** - dictionary indicating the version of the model, name of the author and their contact.  
@@ -84,4 +84,6 @@ It should contain 4 attributes:
     ]
     ```
 3. **model_parameters** - dictionary of the parameter values
-4. **run** function - function that runs the model with given data and returns results in JSON format
+4. **run** - function that runs the model with given data and returns results in JSON format
+
+
