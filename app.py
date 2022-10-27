@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from client import model_export
-from client.parameters import model_parameters
 
 app = FastAPI()
 app.add_middleware(
@@ -31,7 +30,7 @@ data = {
     "mass_ar_st_it": 0.00043,
     "mass_ar_con_t": 0.02347,
     "mass_ar_brick": 0.661,
-    "massARcon": 0.451,
+    "mass_ar_con": 0.451,
     "mass_ar_mt_ps_co": 0.209,
     "mass_ar_mt_ps_rs": 0.194,
     "mass_ar_mt_en_co": 0.06,
@@ -99,7 +98,7 @@ def run_model_version(version, body=data):
         model_executable = model.get("exec")
         try:
             # TODO: save the body of the input
-            results = model_executable(data=body, params=model_parameters)
+            results = model_executable(data=body, params=model.get("model_parameters"))
         except Exception as e:
             return {"message": "error", "results": f"{e}"}
     else:
