@@ -1,3 +1,5 @@
+""" Template on the structure of a model version file"""
+
 meta = {
     "version": "1.0.1",  # version of the model
     "by": "some name",  # author's name
