@@ -34,7 +34,7 @@ class PsqlHandler(logging.Handler):
     def emit(self, record):
 
         # create table if it does not exist
-        conn.execute(psqlHandler.initial_sql)
+        conn.execute(PsqlHandler.initial_sql)
 
         msg = self.format(record)
 
