@@ -12,7 +12,7 @@ engine = sqlalchemy.create_engine(DATABASE_URL.replace("postgres", "postgresql")
 conn = engine.connect()
 
 
-class psqlHandler(logging.Handler):
+class PsqlHandler(logging.Handler):
     """
     This class creates a custom handler for writing the api logs to the Postgres DB
     """
