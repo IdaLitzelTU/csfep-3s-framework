@@ -1,7 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from client import model_export
+import logging
+
+
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.DEBUG,
+)
+
+# setup loggers
+logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
+logger = logging.getLogger("uvicorn.access")
+
 
 app = FastAPI()
 app.add_middleware(
