@@ -4,6 +4,7 @@ from client import model_export
 import logging
 
 
+# TODO: add token authentication
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
     level=logging.DEBUG,
@@ -90,13 +91,32 @@ def get_model_information(version: str):
     return {"message": "OK", "results": response}
 
 
+@app.get("/model/{version}")
+def get_model_results(version: str, dataset: str):
+    # get model meta
+    # get model exec
+    # get data from dataset
+    # exec model with dataset
+    # return model output for specific dataset
+    pass
+
+
 @app.get("/dataset")
-def get_dataset(name):
+def get_dataset(version: str):
+    # return datasets compatible with model version
+    pass
+
+@app.get("/dataset/{name}")
+def get_dataset_data(name: str):
+    # return data from dataset name
     pass
 
 
 @app.put("/dataset")
 def put_dataset(body):
+    # save a dataset with specific body ( TODO: nth data validation )
+    # body should be: { name: str, ...meta, data: {}  }
+    # returns a redirect to the get_model_results
     pass
 
 
@@ -108,7 +128,7 @@ def run_model_version(version, body=data):
     if model:
         model_executable = model.get("exec")
         try:
-            # TODO: save the body of the input
+            # TODO: fetch specific dataset
             results = model_executable(data=body, params=model.get("model_parameters"))
         except Exception as e:
             return {"message": "error", "results": f"{e}"}
