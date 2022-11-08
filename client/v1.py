@@ -310,7 +310,7 @@ def run(data, params, *args, **kwargs):
 
     # RESULTS
     output = {}
-
+    # Calculations for min, mean, and max CO2 emissions values
     for i in range(0, 3, 1):
         print(f"Scenario {i + 1}")
         output[f"scenario_{i + 1}"] = {}

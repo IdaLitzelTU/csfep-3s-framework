@@ -9,7 +9,6 @@ load_dotenv()
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 engine = sqlalchemy.create_engine(DATABASE_URL.replace("postgres", "postgresql"))
-conn = engine.connect()
 
 
 class PsqlHandler(logging.Handler):
@@ -32,7 +31,7 @@ class PsqlHandler(logging.Handler):
         """
 
     def emit(self, record):
-
+        conn = engine.connect()
         # create table if it does not exist
         conn.execute(PsqlHandler.initial_sql)
 
