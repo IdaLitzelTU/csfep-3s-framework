@@ -1,14 +1,7 @@
-import os
 import logging
-import sqlalchemy
-from dotenv import load_dotenv
 import datetime
 import pandas as pd
-
-load_dotenv()
-
-DATABASE_URL = os.environ.get("DATABASE_URL")
-engine = sqlalchemy.create_engine(DATABASE_URL.replace("postgres", "postgresql"))
+from model import engine
 
 
 class PsqlHandler(logging.Handler):
@@ -19,13 +12,13 @@ class PsqlHandler(logging.Handler):
     initial_sql = """CREATE TABLE IF NOT EXISTS logs(
         id SERIAL PRIMARY KEY,
         created_at TIMESTAMP NOT NULL,
-        logger VARCHAR, 
-        message VARCHAR, 
-        level_name VARCHAR, 
-        path_name VARCHAR, 
-        file_name VARCHAR, 
-        module VARCHAR, 
-        line_no INT, 
+        logger VARCHAR,
+        message VARCHAR,
+        level_name VARCHAR,
+        path_name VARCHAR,
+        file_name VARCHAR,
+        module VARCHAR,
+        line_no INT,
         function_name VARCHAR
         )
         """

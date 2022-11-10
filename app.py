@@ -1,7 +1,20 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from client import model_export
 import logging
+from sqlalchemy.orm import Session
+
+from model import SessionLocal, engine, Base, schema, cursor
+
+Base.metadata.create_all(bind=engine)
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 # TODO: add token authentication
@@ -84,40 +97,33 @@ def get_model_information(version: str):
     else:
         return {
             "message": "error",
-            "results": f"""Cannot find version specified. Version specified is {version}. 
-                                                Only following version are available {list(model_export.keys())}""",
+            "results": f"""Cannot find version specified.
+            Version specified is {version}.
+            Only following version are available {list(model_export.keys())}""",
         }
 
     return {"message": "OK", "results": response}
 
 
 @app.get("/model/{version}")
-def get_model_results(version: str, dataset: str):
-    # get model meta
-    # get model exec
-    # get data from dataset
-    # exec model with dataset
-    # return model output for specific dataset
-    pass
+def get_model_results(version: str, dataset_id: int, db: Session = Depends(get_db)):
+    body = cursor.get_dataset_data_object(db=db, dataset_id=id)
+    return run_model_version(version, body=body)
+
+
+@app.post("/dataset")
+def put_dataset(body: schema.CatalogCreate, db: Session = Depends(get_db)):
+    return cursor.put_dataset_object(db=db, body=body)
 
 
 @app.get("/dataset")
-def get_dataset(version: str):
-    # return datasets compatible with model version
-    pass
-
-@app.get("/dataset/{name}")
-def get_dataset_data(name: str):
-    # return data from dataset name
-    pass
+def get_dataset_compatible_with_version(version: str, db: Session = Depends(get_db)):
+    return cursor.get_version_compatible_datasets(db=db, version=version)
 
 
-@app.put("/dataset")
-def put_dataset(body):
-    # save a dataset with specific body ( TODO: nth data validation )
-    # body should be: { name: str, ...meta, data: {}  }
-    # returns a redirect to the get_model_results
-    pass
+@app.get("/dataset/{id}", response_model=schema.Catalog)
+def get_dataset_by_id(id: int, db: Session = Depends(get_db)):
+    return cursor.get_catalog_entry(db=db, id=id)
 
 
 # TODO: have a ?parameter ?dataset to be able to run the model with stored datasets
@@ -135,7 +141,7 @@ def run_model_version(version, body=data):
     else:
         return {
             "message": "OK",
-            "results": f"""Cannot find version specified. Version specified is {version}. 
-                                                Only following version are available {', '.join(list(model_export.keys()))}""",
+            "results": f"""Cannot find version specified. Version specified is {version}.
+                        Only following version are available {', '.join(list(model_export.keys()))}""",
         }
     return {"message": "OK", "results": results}
