@@ -109,7 +109,7 @@ def run_model_version(version, body=data):
         model_executable = model.get("exec")
         try:
             # TODO: save the body of the input
-            results = model_executable(data=body, params=model.get("model_parameters"))
+            results = model_executable(data=body, params=model.get("params"))
         except Exception as e:
             return {"message": "error", "results": f"{e}"}
     else:
