@@ -2,7 +2,7 @@ from framework import csfep_3s
 
 meta = {"version": "1.0.1", "by": "Some Name", "contact": "some.name@mail.com"}
 
-model_parameters = {
+params = {
     "cf_log": 0.5,
     "c2co2": 3.67,
     "k_lms": [0.12, 0.12, 0.12],
@@ -268,11 +268,9 @@ def run(data, params, *args, **kwargs):
 
     # Calculate carbon storage in timber building and carbon needed to be extracted from forest or demand for carbon
     c_stored_in_building = csfep_3s.building_cstore(
-        data["floor_area"],
-        mass_ar_vn=data["mass_ar_vn"],
-        mass_ar_lm=data["mass_ar_lm"],
-        cf_log=params["cf_log"],
+        data["floor_area"], **data, **params
     )
+    print("here")
 
     # t C stored in materials before construction
     c_stored_in_materials = c_stored_in_building / data["material_used"]

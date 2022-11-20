@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from . import table, schema
+import json
 
 
 def get_version_compatible_datasets(db: Session, version: str):
@@ -39,11 +40,20 @@ def put_dataset_object(db: Session, body: schema.CatalogCreate):
 
     return catalog.id
 
-    def get_dataset_data_object(db: Session, id: int):
-        data = db.query(table.Dataset).filter(table.Dataset.catalog_id == id).all()
-        out = {}
 
-        for entry in data:
-            out[entry.key] = entry.value
+def get_dataset_data_object(db: Session, id: int):
+    data = db.query(table.Dataset).filter(table.Dataset.catalog_id == id).all()
+    out = {}
 
-        return out
+    for entry in data:
+        out[entry.key] = cast_to_type(entry.value, entry.datatype)
+    return out
+
+
+def cast_to_type(value, type):
+    try:
+        v = float(value)
+    except Exception as e:
+        v = json.loads(value)
+
+    return v

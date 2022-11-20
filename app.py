@@ -17,15 +17,15 @@ def get_db():
         db.close()
 
 
-# TODO: add token authentication
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.DEBUG,
-)
+# # TODO: add token authentication
+# logging.basicConfig(
+#     format="%(asctime)s %(levelname)s %(message)s",
+#     level=logging.DEBUG,
+# )
 
-# setup loggers
-logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
-logger = logging.getLogger("uvicorn.access")
+# # setup loggers
+# logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
+# logger = logging.getLogger("uvicorn.access")
 
 
 app = FastAPI()
@@ -105,10 +105,10 @@ def get_model_information(version: str):
     return {"message": "OK", "results": response}
 
 
-@app.get("/model/{version}")
-def get_model_results(version: str, dataset_id: int, db: Session = Depends(get_db)):
-    body = cursor.get_dataset_data_object(db=db, dataset_id=id)
-    return run_model_version(version, body=body)
+@app.get("/results/{version}")
+def get_model_results(version: str, dataset: int, db: Session = Depends(get_db)):
+    body = cursor.get_dataset_data_object(db=db, id=dataset)
+    return run_model_version(version=version, body=body)
 
 
 @app.post("/dataset")
@@ -133,11 +133,13 @@ def run_model_version(version, body=data):
     model = model_export.get(version)
     if model:
         model_executable = model.get("exec")
-        try:
-            # TODO: fetch specific dataset
-            results = model_executable(data=body, params=model.get("model_parameters"))
-        except Exception as e:
-            return {"message": "error", "results": f"{e}"}
+        results = model_executable(data=body, params=model.get("params"))
+        print(results)
+        # try:
+        #     # TODO: fetch specific dataset
+        #     results = model_executable(data=body, params=model.get("model_parameters"))
+        # except Exception as e:
+        #     return {"message": "error", "results": f"{e}"}
     else:
         return {
             "message": "OK",
