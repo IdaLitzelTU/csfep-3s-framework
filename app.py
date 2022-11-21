@@ -1,9 +1,23 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from client import model_export
 import logging
+from sqlalchemy.orm import Session
+
+from model import SessionLocal, engine, Base, schema, cursor
+
+Base.metadata.create_all(bind=engine)
 
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+# TODO: add token authentication
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
     level=logging.DEBUG,
@@ -83,21 +97,12 @@ def get_model_information(version: str):
     else:
         return {
             "message": "error",
-            "results": f"""Cannot find version specified. Version specified is {version}. 
-                                                Only following version are available {list(model_export.keys())}""",
+            "results": f"""Cannot find version specified.
+            Version specified is {version}.
+            Only following version are available {list(model_export.keys())}""",
         }
 
     return {"message": "OK", "results": response}
-
-
-@app.get("/dataset")
-def get_dataset(name):
-    pass
-
-
-@app.put("/dataset")
-def put_dataset(body):
-    pass
 
 
 # TODO: have a ?parameter ?dataset to be able to run the model with stored datasets
@@ -107,15 +112,34 @@ def run_model_version(version, body=data):
     model = model_export.get(version)
     if model:
         model_executable = model.get("exec")
-        try:
-            # TODO: save the body of the input
-            results = model_executable(data=body, params=model.get("params"))
-        except Exception as e:
-            return {"message": "error", "results": f"{e}"}
+        results = model_executable(data=body, params=model.get("params"))
     else:
         return {
             "message": "OK",
-            "results": f"""Cannot find version specified. Version specified is {version}. 
-                                                Only following version are available {', '.join(list(model_export.keys()))}""",
+            "results": f"""Cannot find version specified. Version specified is {version}.
+                        Only following version are available {', '.join(list(model_export.keys()))}""",
         }
     return {"message": "OK", "results": results}
+
+
+@app.get("/result")
+def run_model_version_with_dataset(
+    version: str, dataset: int, db: Session = Depends(get_db)
+):
+    body = cursor.get_dataset_data_object(db=db, id=dataset)
+    return run_model_version(version=version, body=body)
+
+
+@app.get("/catalog", response_model=list[schema.CatalogVersion])
+def get_catalog_entries_with_compatibiltiy(db: Session = Depends(get_db)):
+    return cursor.get_all_cataglog_entries(db=db)
+
+
+@app.post("/dataset")
+def put_dataset(body: schema.CatalogCreate, db: Session = Depends(get_db)):
+    return cursor.put_dataset_object(db=db, body=body)
+
+
+@app.get("/dataset/{id}", response_model=schema.CatalogData)
+def get_dataset_by_id(id: int, db: Session = Depends(get_db)):
+    return cursor.get_catalog_entry(db=db, id=id)

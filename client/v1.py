@@ -2,7 +2,7 @@ from framework import csfep_3s
 
 meta = {"version": "1.0.1", "by": "Some Name", "contact": "some.name@mail.com"}
 
-model_parameters = {
+params = {
     "cf_log": 0.5,
     "c2co2": 3.67,
     "k_lms": [0.12, 0.12, 0.12],
@@ -268,10 +268,7 @@ def run(data, params, *args, **kwargs):
 
     # Calculate carbon storage in timber building and carbon needed to be extracted from forest or demand for carbon
     c_stored_in_building = csfep_3s.building_cstore(
-        data["floor_area"],
-        mass_ar_vn=data["mass_ar_vn"],
-        mass_ar_lm=data["mass_ar_lm"],
-        cf_log=params["cf_log"],
+        data["floor_area"], **data, **params
     )
 
     # t C stored in materials before construction
@@ -310,9 +307,8 @@ def run(data, params, *args, **kwargs):
 
     # RESULTS
     output = {}
-
+    # Calculations for min, mean, and max CO2 emissions values
     for i in range(0, 3, 1):
-        print(f"Scenario {i + 1}")
         output[f"scenario_{i + 1}"] = {}
 
         list1 = ["Accumulated", "Harvested", "C2Scrap", "C2Forest", "C2Buildings"]
@@ -430,5 +426,4 @@ def run(data, params, *args, **kwargs):
         output[f"scenario_{i + 1}"]["Buildings floor area m2"] = building_area_built
         output[f"scenario_{i + 1}"]["Number of Buildings"] = number_of_buildings
 
-        print(output[f"scenario_{i + 1}"])
     return output

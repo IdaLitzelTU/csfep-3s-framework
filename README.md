@@ -66,6 +66,7 @@ Example:
 
 To add a model version, create a version .py file in the client folder following the structure in the template.py file.  
 Name the file by version i.e. if the model is version 2 the file name would be ***v2.py***  
+***The model version file name should always start with letter v***
 
 It should contain 4 attributes:  
 1. **meta** - dictionary indicating the version of the model, name of the author and their contact.  
