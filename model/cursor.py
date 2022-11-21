@@ -7,6 +7,10 @@ def get_version_compatible_datasets(db: Session, version: str):
     return db.query(table.Version).filter(table.Version.name == version).all()
 
 
+def get_all_cataglog_entries(db: Session):
+    return db.query(table.Catalog).all()
+
+
 def get_catalog_entry(db: Session, id: int):
     return db.query(table.Catalog).filter(table.Catalog.id == id).first()
 
@@ -51,6 +55,15 @@ def get_dataset_data_object(db: Session, id: int):
 
 
 def cast_to_type(value, type):
+
+    # dtypes = {
+    #     "number": float,
+    #     "array": json.loads
+    # }
+
+    # typeCast = dtypes.get(type, float)
+    # v = typeCast(value)
+
     try:
         v = float(value)
     except Exception as e:

@@ -270,7 +270,6 @@ def run(data, params, *args, **kwargs):
     c_stored_in_building = csfep_3s.building_cstore(
         data["floor_area"], **data, **params
     )
-    print("here")
 
     # t C stored in materials before construction
     c_stored_in_materials = c_stored_in_building / data["material_used"]
@@ -310,7 +309,6 @@ def run(data, params, *args, **kwargs):
     output = {}
     # Calculations for min, mean, and max CO2 emissions values
     for i in range(0, 3, 1):
-        print(f"Scenario {i + 1}")
         output[f"scenario_{i + 1}"] = {}
 
         list1 = ["Accumulated", "Harvested", "C2Scrap", "C2Forest", "C2Buildings"]
@@ -428,5 +426,4 @@ def run(data, params, *args, **kwargs):
         output[f"scenario_{i + 1}"]["Buildings floor area m2"] = building_area_built
         output[f"scenario_{i + 1}"]["Number of Buildings"] = number_of_buildings
 
-        print(output[f"scenario_{i + 1}"])
     return output

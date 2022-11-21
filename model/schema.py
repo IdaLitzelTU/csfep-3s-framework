@@ -1,13 +1,6 @@
 from pydantic import BaseModel
 
 
-class Version(BaseModel):
-    name: str
-
-    class Config:
-        orm_mode = True
-
-
 class Dataset(BaseModel):
     key: str
     value: str
@@ -17,11 +10,26 @@ class Dataset(BaseModel):
         orm_mode = True
 
 
-class Catalog(BaseModel):
+class Version(BaseModel):
     name: str
+
+    class Config:
+        orm_mode = True
+
+
+class CatalogData(BaseModel):
+    dataset_name: str
     description: str
-    version: list[Version] = []
     data: list[Dataset] = []
+
+    class Config:
+        orm_mode = True
+
+
+class CatalogVersion(BaseModel):
+    dataset_name: str
+    description: str
+    version: list[Version]
 
     class Config:
         orm_mode = True
