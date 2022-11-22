@@ -424,6 +424,8 @@ def run(data, params, *args, **kwargs):
             output[f"scenario_{i + 1}"][unit] = df
 
         output[f"scenario_{i + 1}"]["Buildings floor area m2"] = building_area_built
-        output[f"scenario_{i + 1}"]["Number of Buildings"] = number_of_buildings
+        output[f"scenario_{i + 1}"]["Number of Buildings"] = number_of_buildingsoutput
+        output[f"scenario_{i + 1}"]["Years to Regrow Forest"] = years_to_regrow_forest
+        output[f"scenario_{i + 1}"]["Carbon Recovered during Building Lifectime"] = c_recovered_forest
 
     return output
