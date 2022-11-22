@@ -18,14 +18,10 @@ def get_db():
 
 
 # TODO: add token authentication
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.DEBUG,
-)
 
 # setup loggers
 logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
-logger = logging.getLogger("uvicorn.access")
+logger = logging.getLogger(__name__)
 
 
 app = FastAPI()
@@ -73,6 +69,7 @@ data = {
 
 @app.get("/")
 async def root():
+    logger.info("Root page")
     return {"message": "Hello World"}
 
 
@@ -81,6 +78,7 @@ def get_model_versions():
     """
     returns all existing model versions
     """
+    logger.debug(f"Existing model versions: {list(model_export.keys())}")
     return {"message": "OK", "results": list(model_export.keys())}
 
 
@@ -89,12 +87,17 @@ def get_model_information(version: str):
     """
     get information on a specific model version if it exists
     """
+    logger.info(f"Retrieving model version {version} metadata")
     model = model_export.get(version)
     if model:
-        input = model.get("input")
-        meta = model.get("meta")
-        response = {"input": input, "meta": meta}
+        try:
+            input = model.get("input")
+            meta = model.get("meta")
+            response = {"input": input, "meta": meta}
+        except Exception as e:
+            logger.exception(e)
     else:
+        logger.debug("Cannot find version specified: {version}")
         return {
             "message": "error",
             "results": f"""Cannot find version specified.
@@ -109,11 +112,16 @@ def get_model_information(version: str):
 @app.post("/model/{version}")
 def run_model_version(version, body=data):
     """Runs the specified model version and returns the output of the model"""
+    logger.info(f"Running model {version} with {body}")
     model = model_export.get(version)
     if model:
         model_executable = model.get("exec")
         results = model_executable(data=body, params=model.get("params"))
+        logger.info(f"Model results: {results}")
     else:
+        logger.debug(
+            f"Cannot find version {version}. Only following version are available {', '.join(list(model_export.keys()))}"
+        )
         return {
             "message": "OK",
             "results": f"""Cannot find version specified. Version specified is {version}.
@@ -126,20 +134,24 @@ def run_model_version(version, body=data):
 def run_model_version_with_dataset(
     version: str, dataset: int, db: Session = Depends(get_db)
 ):
+    logger.info(f"Running model version {version} with the dataset ID {dataset}")
     body = cursor.get_dataset_data_object(db=db, id=dataset)
     return run_model_version(version=version, body=body)
 
 
 @app.get("/catalog", response_model=list[schema.CatalogVersion])
 def get_catalog_entries_with_compatibiltiy(db: Session = Depends(get_db)):
+    logger.info(f"Fetching catalog")
     return cursor.get_all_cataglog_entries(db=db)
 
 
 @app.post("/dataset")
 def put_dataset(body: schema.CatalogCreate, db: Session = Depends(get_db)):
+    logger.info(f"Saved dataset: {body}")
     return cursor.put_dataset_object(db=db, body=body)
 
 
 @app.get("/dataset/{id}", response_model=schema.CatalogData)
 def get_dataset_by_id(id: int, db: Session = Depends(get_db)):
+    logger.info(f"Retrieved dataset {id}")
     return cursor.get_catalog_entry(db=db, id=id)
