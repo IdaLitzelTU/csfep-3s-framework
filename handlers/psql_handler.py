@@ -22,6 +22,8 @@ class PsqlHandler(logging.Handler):
         function_name VARCHAR
         )
         """
+    def __init__(self):
+        super().__init__()
 
     def emit(self, record):
         conn = engine.connect()
@@ -35,7 +37,7 @@ class PsqlHandler(logging.Handler):
                 record.__dict__["created"]
             ).strftime("%Y-%m-%d %H:%M:%S")
 
-        df = pd.DataFrame(record.__dict__)
+        df = pd.DataFrame.from_dict(record.__dict__, orient="index").T
         table_columns = [
             "created_at",
             "name",
