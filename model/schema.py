@@ -27,6 +27,7 @@ class CatalogData(BaseModel):
 
 
 class CatalogVersion(BaseModel):
+    id: int
     dataset_name: str
     description: str
     version: list[Version]
