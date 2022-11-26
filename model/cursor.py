@@ -52,6 +52,13 @@ def put_dataset_object(db: Session, body: schema.CatalogCreate):
     return catalog.id
 
 
+def cast_dict(data):
+    out = {}
+    for key, value in data.items():
+        out[key] = cast_to_type(value)
+    return out
+
+
 def get_dataset_data_object(db: Session, id: int):
     data = db.query(table.Dataset).filter(table.Dataset.catalog_id == id).all()
     out = {}
@@ -61,7 +68,7 @@ def get_dataset_data_object(db: Session, id: int):
     return out
 
 
-def cast_to_type(value, type):
+def cast_to_type(value, type=""):
 
     # dtypes = {
     #     "number": float,

@@ -20,7 +20,7 @@ def get_db():
 # TODO: add token authentication
 
 # setup loggers
-# logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
+logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 
@@ -32,39 +32,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-data = {
-    "a_harvest": 0.74,
-    "biomass_left": 0.1,
-    "acc_rate": [3.3, 5, 6.7],
-    "wood_used": 0.5,
-    "material_used": 1,
-    "dmnf1": 0,
-    "dmnf2": 0,
-    "dmnf3": 0,
-    "dmnf4": 200,
-    "floor_area": 18,
-    "xl": 20,
-    "mass_ar_lm": 0.108,
-    "mass_ar_vn": 0,
-    "mass_ar_st_it": 0.00043,
-    "mass_ar_con_t": 0.02347,
-    "mass_ar_brick": 0.661,
-    "mass_ar_con": 0.451,
-    "mass_ar_mt_ps_co": 0.209,
-    "mass_ar_mt_ps_rs": 0.194,
-    "mass_ar_mt_en_co": 0.06,
-    "mass_ar_mt_en_rs": 0.028,
-    "mass_ar_wfb_en_co": 0.021,
-    "mass_ar_wfb_en_rs": 0.01,
-    "mass_ar_con_ps_co": 0.608,
-    "mass_ar_stl_ps_co": 0.083,
-    "mass_ar_stl_en_co": 0.01,
-    "mass_ar_fbg_en_co": 0.002,
-    "mass_ar_gyp_en_co": 0.013,
-    "mass_ar_xps_en_co": 0.002,
-}
 
 
 @app.get("/")
@@ -108,15 +75,16 @@ def get_model_information(version: str):
     return {"message": "OK", "results": response}
 
 
-# TODO: have a ?parameter ?dataset to be able to run the model with stored datasets
-@app.post("/model/{version}")
-def run_model_version(version, body=data):
+@app.post("/run/{version}")
+def run_model_version(version: str, body: dict):
     """Runs the specified model version and returns the output of the model"""
     logger.info(f"Running model {version} with {body}")
     model = model_export.get(version)
     if model:
         model_executable = model.get("exec")
-        results = model_executable(data=body, params=model.get("params"))
+        results = model_executable(
+            data=cursor.cast_dict(body), params=model.get("params")
+        )
         logger.info(f"Model results: {results}")
     else:
         logger.debug(
@@ -131,7 +99,7 @@ def run_model_version(version, body=data):
 
 
 @app.get("/result")
-def run_model_version_with_dataset(
+def run_model_version_with_dataset_id(
     version: str, dataset: int, db: Session = Depends(get_db)
 ):
     logger.info(f"Running model version {version} with the dataset ID {dataset}")
