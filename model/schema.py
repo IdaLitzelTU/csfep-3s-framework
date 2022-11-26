@@ -19,6 +19,8 @@ class Version(BaseModel):
 
 class CatalogData(BaseModel):
     dataset_name: str
+    organization_name: str
+    publisher_name: str
     description: str
     data: list[Dataset] = []
 

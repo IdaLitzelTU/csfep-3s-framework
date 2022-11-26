@@ -13,7 +13,9 @@ class Catalog(Base, Serializable):
 
     id = Column(Integer, primary_key=True, index=True)
     dataset_name = Column(String, index=True)
-    description = Column(String, index=True)
+    organisation_name = Column(String)
+    publisher_name = Column(String)
+    description = Column(String)
 
     version = relationship("Version", back_populates="catalog")
     data = relationship("Dataset", back_populates="catalog")
