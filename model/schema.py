@@ -18,10 +18,11 @@ class Version(BaseModel):
 
 
 class CatalogData(BaseModel):
+    id: int
     dataset_name: str
-    organisation_name: str
-    publisher_name: str
-    description: str
+    organisation_name: str | None = ""
+    publisher_name: str | None = ""
+    description: str | None = ""
     data: list[Dataset] = []
 
     class Config:
@@ -31,9 +32,9 @@ class CatalogData(BaseModel):
 class CatalogVersion(BaseModel):
     id: int
     dataset_name: str
-    organisation_name: str
-    publisher_name: str
-    description: str
+    organisation_name: str | None = ""
+    publisher_name: str | None = ""
+    description: str | None = ""
     version: list[Version] = []
 
     class Config:
