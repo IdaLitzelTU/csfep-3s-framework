@@ -19,7 +19,7 @@ class Version(BaseModel):
 
 class CatalogData(BaseModel):
     dataset_name: str
-    organization_name: str
+    organisation_name: str
     publisher_name: str
     description: str
     data: list[Dataset] = []
@@ -31,15 +31,19 @@ class CatalogData(BaseModel):
 class CatalogVersion(BaseModel):
     id: int
     dataset_name: str
+    organisation_name: str
+    publisher_name: str
     description: str
-    version: list[Version]
+    version: list[Version] = []
 
     class Config:
         orm_mode = True
 
 
 class CatalogCreate(BaseModel):
-    name: str
-    description: str
+    dataset_name: str
+    description: str = ""
+    organisation_name: str = ""
+    publisher_name: str = ""
     version: str
     data: dict

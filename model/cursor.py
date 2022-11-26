@@ -17,12 +17,19 @@ def get_catalog_entry(db: Session, id: int):
 
 def put_dataset_object(db: Session, body: schema.CatalogCreate):
 
-    name = body.name
+    name = body.dataset_name
     description = body.description
     model_version = body.version
+    publisher = body.publisher_name
+    org = body.organisation_name
 
     # create catalogue object
-    catalog = table.Catalog(name=name, description=description)
+    catalog = table.Catalog(
+        dataset_name=name,
+        description=description,
+        publisher_name=publisher,
+        organisation_name=org,
+    )
     db.add(catalog)
     db.flush()
     db.refresh(catalog)
