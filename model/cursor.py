@@ -64,7 +64,7 @@ def get_dataset_data_object(db: Session, id: int):
     out = {}
 
     for entry in data:
-        out[entry.key] = cast_to_type(entry.value, entry.datatype)
+        out[entry.key] = entry.value
     return out
 
 

@@ -327,18 +327,12 @@ def run(data, params, *args, **kwargs):
             data["mass_ar_st_it"],
             0,
             i,
-            k_con=params["k_con"],
-            k_stl=params["k_stl"],
-            k_brk=params["k_brk"],
-            c2co2=params["c2co2"],
+            **params
         ) + csfep_3s.building_cemi_mt(
             building_area_built,
             i,
-            mass_ar_lm=data["mass_ar_lm"],
-            k_lmh=params["k_lmh"],
-            mass_ar_vn=data["mass_ar_vn"],
-            k_vn=params["k_vn"],
-            c2co2=params["c2co2"],
+            **data,
+            **params
         )
 
         c_emitted_building_steel_concrete = csfep_3s.building_cemi_sc(
@@ -347,10 +341,7 @@ def run(data, params, *args, **kwargs):
             0,
             data["mass_ar_brick"],
             i,
-            k_con=params["k_con"],
-            k_stl=params["k_stl"],
-            k_brk=params["k_brk"],
-            c2co2=params["c2co2"],
+            **params
         )
 
         c_emitted_building_transport_timber = (
@@ -358,25 +349,26 @@ def run(data, params, *args, **kwargs):
                 c_harvested / params["cf_log"],
                 data["dmnf1"],
                 params["k_truck"][i],
-                c2co2=params["c2co2"],
+                **params
             )
             + csfep_3s.transport_cemi_mt(
                 c_stored_in_roundwood / params["cf_log"],
                 data["dmnf2"],
                 params["k_truck"][i],
-                c2co2=params["c2co2"],
+                **params
             )
             + csfep_3s.transport_cemi_mt(
                 c_stored_in_materials / params["cf_log"],
                 data["dmnf3"],
                 params["k_sea"],
-                c2co2=params["c2co2"],
+                **params
             )
             + csfep_3s.transport_cemi_mt(
                 c_stored_in_building / params["cf_log"],
                 data["dmnf4"],
                 params["k_truck"][i],
-                c2co2=params["c2co2"],
+                # c2co2=params["c2co2"],
+                **params
             )
         )
 
@@ -384,7 +376,7 @@ def run(data, params, *args, **kwargs):
             w_materials_in_building,
             data["dmnf4"],
             params["k_truck"][i],
-            c2co2=params["c2co2"],
+            **params
         )
 
         units = ["tC", "tCO2"]
