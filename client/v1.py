@@ -24,6 +24,7 @@ assumptions = {
     "Timber scrap": "Is included in the Storage",
     "Timber reintroduced to the forest": "Is included in the Storage",
     "Transport emmission carbon benefit": "Is included in the Substitution",
+    "Total carbon benefit":"Is a sum of sink and substitution",
 }
 
 input = [
