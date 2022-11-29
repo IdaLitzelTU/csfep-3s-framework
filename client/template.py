@@ -18,7 +18,7 @@ input = [
     },
 ]
 
-model_parameters = {
+params = {
     # dictionary for the parameter values
 }
 
@@ -26,5 +26,42 @@ model_parameters = {
 def run(data, params, *args, **kwargs):
     """
     This function runs the model with given inputs and returns results in JSON format
+
+
+    The output of this method is directly fed into the frontend of the application. To make sure
+    backwards compatibility, please make sure you are returning an object with the following structure:
+
+     output = {
+        "tC": {"constants": {}, scenario_{x: 1|2|3}: {} }, # the output in Carbon (T)
+        "tCO2": {"constants": {}, scenario_{x: 1|2|3}: {} }, # the output in Carbon Dioxide (T)
+        "assumtions": {}
+    }
+
+    Variables that the frontend displays are as follows:
+
+    Constants:
+        "Accumulated"
+        "Harvested"
+        "Buildings floor area m2"
+        "Number of Buildings"
+        "Years to Regrow Forest"
+
+    Scenario variables:
+        Carbon Recovered during Building Lifetime
+        C2Scrap
+        C2Forest
+        C2Buildings
+
+        MT Production
+        SC Production
+        MT Transport
+        SC Transport
+
+    Guidelines:
+        If you want to consider Scrap or Forest as part of the Substitution or not at all, set variables
+        C2Scrap, C2Forest to 0 and add the values to MT variables instead.
+
+    Don't forget to adjust your assumtions!
+
     """
     pass

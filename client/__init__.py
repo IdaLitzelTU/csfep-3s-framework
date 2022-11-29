@@ -36,6 +36,7 @@ def model_versions(modules, client):
             "meta": client[index].meta,
             "input": client[index].input,
             "params": client[index].params,
+            "assumptions": client[index].assumptions,
         }
 
     return model_export

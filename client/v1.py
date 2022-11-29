@@ -20,6 +20,12 @@ params = {
     "k_sea": 0.000013155,
 }
 
+assumptions = {
+    "Timber scrap": "Is included in the Storage",
+    "Timber reintroduced to the forest": "Is included in the Storage",
+    "Transport emmission carbon benefit": "Is included in the Substitution",
+}
+
 input = [
     {
         "name": "a_harvest",
@@ -305,35 +311,43 @@ def run(data, params, *args, **kwargs):
         data["xl"], data["a_harvest"], 0, **data
     )
 
+    constants = {
+        "Accumulated": c_accum_forest,
+        "Harvested": c_harvested,
+        "Buildings floor area m2": data["floor_area"],
+        "Number of Buildings": number_of_buildings,
+        "Years to Regrow Forest": years_to_regrow_forest,
+    }
+
     # RESULTS
-    output = {}
-    # Calculations for min, mean, and max CO2 emissions values
+    output = {
+        "tC": {"constants": constants},
+        "tCO2": {
+            "constants": csfep_3s.convert_to_tco2(
+                constants,
+                params["c2co2"],
+                [
+                    "Buildings floor area m2",
+                    "Number of Buildings",
+                    "Years to Regrow Forest",
+                ],
+            )
+        },
+    }
+
     for i in range(0, 3, 1):
-        output[f"scenario_{i + 1}"] = {}
 
-        list1 = ["Accumulated", "Harvested", "C2Scrap", "C2Forest", "C2Buildings"]
-        list2 = [
-            "MassTimber",
-            "MT transport",
-            "SteelConcrete",
-            "SC transport",
-            "Difference",
-        ]
+        scoped_data = {}
+        scenario_name = f"scenario_{i+1}"
 
-        #   Calculate carbon emissions from building production and material transport
         c_emitted_building_timber = csfep_3s.building_cemi_sc(
             building_area_built,
             data["mass_ar_con_t"],
             data["mass_ar_st_it"],
             0,
             i,
-            **params
-        ) + csfep_3s.building_cemi_mt(
-            building_area_built,
-            i,
-            **data,
-            **params
-        )
+            **params,
+        ) + csfep_3s.building_cemi_mt(building_area_built, i, **data, **params)
 
         c_emitted_building_steel_concrete = csfep_3s.building_cemi_sc(
             building_area_built,
@@ -341,7 +355,7 @@ def run(data, params, *args, **kwargs):
             0,
             data["mass_ar_brick"],
             i,
-            **params
+            **params,
         )
 
         c_emitted_building_transport_timber = (
@@ -349,77 +363,46 @@ def run(data, params, *args, **kwargs):
                 c_harvested / params["cf_log"],
                 data["dmnf1"],
                 params["k_truck"][i],
-                **params
+                **params,
             )
             + csfep_3s.transport_cemi_mt(
                 c_stored_in_roundwood / params["cf_log"],
                 data["dmnf2"],
                 params["k_truck"][i],
-                **params
+                **params,
             )
             + csfep_3s.transport_cemi_mt(
                 c_stored_in_materials / params["cf_log"],
                 data["dmnf3"],
                 params["k_sea"],
-                **params
+                **params,
             )
             + csfep_3s.transport_cemi_mt(
                 c_stored_in_building / params["cf_log"],
                 data["dmnf4"],
                 params["k_truck"][i],
-                # c2co2=params["c2co2"],
-                **params
+                **params,
             )
         )
 
         c_emitted_transport_conven = csfep_3s.transport_cemi_mt(
-            w_materials_in_building,
-            data["dmnf4"],
-            params["k_truck"][i],
-            **params
+            w_materials_in_building, data["dmnf4"], params["k_truck"][i], **params
         )
 
-        units = ["tC", "tCO2"]
-        for unit in units:
-            df = {}
-            df["Unit"] = unit
+        scoped_data["Carbon Recovered during Building Lifetime"] = c_recovered_forest
+        scoped_data["C2Scrap"] = c_harvest_2_scrap
+        scoped_data["C2Forest"] = c_harvest_2_forest
+        scoped_data["C2Buildings"] = c_buildings
 
-            for index, value in enumerate(
-                [
-                    c_accum_forest,
-                    c_harvested,
-                    c_harvest_2_scrap,
-                    c_harvest_2_forest,
-                    c_buildings,
-                ]
-            ):
-                if unit == "tC":
-                    df[list1[index]] = value
-                else:
-                    df[list1[index]] = value * params["c2co2"]
+        scoped_data["MT Production"] = c_emitted_building_timber
+        scoped_data["SC Production"] = c_emitted_building_steel_concrete
+        scoped_data["MT Transport"] = c_emitted_building_transport_timber
+        scoped_data["SC Transport"] = c_emitted_transport_conven
 
-            for index, value in enumerate(
-                [
-                    c_emitted_building_timber,
-                    c_emitted_building_transport_timber,
-                    c_emitted_building_steel_concrete,
-                    c_emitted_transport_conven,
-                    c_emitted_building_steel_concrete - c_emitted_building_timber,
-                ]
-            ):
+        output["tC"][scenario_name] = scoped_data
+        output["tCO2"][scenario_name] = csfep_3s.convert_to_tco2(
+            scoped_data, params["c2co2"]
+        )
 
-                if unit == "tC":
-                    df[list2[index]] = value
-                else:
-                    df[list2[index]] = value * params["c2co2"]
-
-            output[f"scenario_{i + 1}"][unit] = df
-
-        output[f"scenario_{i + 1}"]["Buildings floor area m2"] = building_area_built
-        output[f"scenario_{i + 1}"]["Number of Buildings"] = number_of_buildings
-        output[f"scenario_{i + 1}"]["Years to Regrow Forest"] = years_to_regrow_forest
-        output[f"scenario_{i + 1}"][
-            "Carbon Recovered during Building Lifetime"
-        ] = c_recovered_forest
-
+    output["assumptions"] = assumptions
     return output

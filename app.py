@@ -60,7 +60,8 @@ def get_model_information(version: str):
         try:
             input = model.get("input")
             meta = model.get("meta")
-            response = {"input": input, "meta": meta}
+            assumptions = model.get("assumptions")
+            response = {"input": input, "meta": meta, "assumptions": assumptions}
         except Exception as e:
             logger.exception(e)
     else:

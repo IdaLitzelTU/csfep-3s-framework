@@ -3,8 +3,22 @@ import logging
 logger = logging.getLogger(__name__)
 
 if logger.hasHandlers():
-        # Logger is already configured, remove all handlers
-        logger.handlers = []
+    # Logger is already configured, remove all handlers
+    logger.handlers = []
+
+
+def convert_to_tco2(object, coefficient, obsolve=[]):
+
+    out = {}
+    for key, value in object.items():
+
+        if key not in obsolve:
+            out[key] = value * coefficient
+        else:
+            out[key] = value
+
+    return out
+
 
 def building_cstore(area_bld, *, mass_ar_vn, mass_ar_lm, cf_log, **kwargs):
     """
@@ -72,7 +86,7 @@ def building_cemi_sc(
     k_stl,
     k_brk,
     c2co2,
-    **kwargs
+    **kwargs,
 ):
     """
     This function calculates amount of carbon emitted at the manufacturing
@@ -90,6 +104,7 @@ def building_cemi_sc(
         return z
     except Exception as e:
         logger.exception(e)
+
 
 def transport_cemi_mt(mat_mass, distance, k, *, c2co2, **kwargs):
     """
