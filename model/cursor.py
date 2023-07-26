@@ -3,6 +3,14 @@ from . import table, schema
 import json
 
 
+def get_materials(db: Session):
+    return db.query(table.Material).all()
+
+
+def get_forests(db: Session):
+    return db.query(table.Forest).all()
+
+
 def get_version_compatible_datasets(db: Session, version: str):
     return db.query(table.Version).filter(table.Version.name == version).all()
 
@@ -16,7 +24,6 @@ def get_catalog_entry(db: Session, id: int):
 
 
 def put_dataset_object(db: Session, body: schema.CatalogCreate):
-
     name = body.dataset_name
     description = body.description
     model_version = body.version
@@ -69,7 +76,6 @@ def get_dataset_data_object(db: Session, id: int):
 
 
 def cast_to_type(value, type=""):
-
     # dtypes = {
     #     "number": float,
     #     "array": json.loads

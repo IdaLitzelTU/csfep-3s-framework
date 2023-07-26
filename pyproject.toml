@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "csfep-3s-framework"
-version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
+version = "1.1.0"
+description = "The Climate Smart Forest Economy Program"
+authors = ["denys.sementsov@dalberg.com", "assumpta.wanyama@dalberg.com"]
 readme = "README.md"
 packages = [{include = "csfep_3s_framework"}]
 

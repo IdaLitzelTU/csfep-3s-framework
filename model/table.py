@@ -1,5 +1,5 @@
 from model import Base
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float
 from sqlalchemy.orm import relationship
 
 
@@ -22,7 +22,6 @@ class Catalog(Base, Serializable):
 
 
 class Version(Base, Serializable):
-
     __tablename__ = "compatibility"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -41,3 +40,27 @@ class Dataset(Base, Serializable):
     datatype = Column(String)
 
     catalog = relationship("Catalog", back_populates="data")
+
+
+class Material(Base, Serializable):
+    __tablename__ = "materials"
+
+    id = Column(String, primary_key=True)
+    material = Column(String)
+    reference = Column(String)
+    best = Column(Float)
+    min = Column(Float)
+    max = Column(Float)
+
+
+class Forest(Base, Serializable):
+    __tablename__ = "forests"
+
+    id = Column(String, primary_key=True)
+    forest = Column(String)
+    type = Column(String)
+    location = Column(String)
+    reference = Column(String)
+    best = Column(Float)
+    min = Column(Float)
+    max = Column(Float)

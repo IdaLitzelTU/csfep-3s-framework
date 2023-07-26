@@ -2,20 +2,12 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from client import model_export
 import logging
+import logging.config
 from sqlalchemy.orm import Session
 
-from model import SessionLocal, engine, Base, schema, cursor
+from model import get_db, engine, Base, schema, cursor
 
 Base.metadata.create_all(bind=engine)
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 
 # TODO: add token authentication
 
@@ -24,7 +16,7 @@ logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 
-app = FastAPI()
+app = FastAPI(debug=True)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
