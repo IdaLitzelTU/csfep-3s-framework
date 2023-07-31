@@ -15,6 +15,8 @@ input = [
         "description": "",  # A clear description statement of the variable
         "type": "",  # data type of the variable i.e. number, text, array of numbers (array[numbers])
         "default": "",  # the default value of the variable if any else indicate None
+        "min": "",  # the minimum value of the variable
+        "max": "",  # the maximum value of the variable
     },
 ]
 

@@ -35,6 +35,8 @@ input = [
         "description": "An area of forest harvested in hectares",
         "type": "number",
         "default": "None",
+        "min": 0.1,
+        "max": 100000000,
     },
     {
         "name": "biomass_left",
@@ -43,6 +45,8 @@ input = [
         "description": "Proportion of harvested biomass left on site to provide nutrients for regeneration",
         "type": "number",
         "default": 0.1,
+        "min": 0,
+        "max": 1,
     },
     {
         "name": "acc_rate",
@@ -51,6 +55,8 @@ input = [
         "description": "Carbon accumulation rate in Carribean pine plantation in metric tonnes of carbon (MgC) or ton per hectares per year ",
         "type": "array[number]",
         "default": "None",
+        "min": 0,
+        "max": 20,
     },
     {
         "name": "wood_used",
@@ -59,6 +65,8 @@ input = [
         "description": "Proportion of roundwood used for material production",
         "type": "number",
         "default": 0.5,
+        "min": 0,
+        "max": 1,
     },
     {
         "name": "material_used",
@@ -67,6 +75,8 @@ input = [
         "description": "Proportion of prefabricated material used in construction",
         "type": "number",
         "default": 1,
+        "min": 0,
+        "max": 1,
     },
     {
         "name": "dmnf1",
@@ -75,6 +85,8 @@ input = [
         "description": "Land transport distance 1 in kilometers",
         "type": "number",
         "default": "None",
+        "min": 0,
+        "max": 100000,
     },
     {
         "name": "dmnf2",
@@ -83,6 +95,8 @@ input = [
         "description": "Land transport distance 2 in kilometers",
         "type": "number",
         "default": "None",
+        "min": 0,
+        "max": 100000,
     },
     {
         "name": "dmnf3",
@@ -91,6 +105,8 @@ input = [
         "description": "Sea transport distance 1 in kilometers",
         "type": "number",
         "default": "None",
+        "min": 0,
+        "max": 100000,
     },
     {
         "name": "dmnf4",
@@ -99,6 +115,8 @@ input = [
         "description": "Land transport distance 3 in kilometers e.g., from the material manufacturing facilities to the construction site",
         "type": "number",
         "default": "None",
+        "min": 0,
+        "max": 100000,
     },
     {
         "name": "floor_area",
@@ -107,6 +125,8 @@ input = [
         "description": "The floor area of one house in squared meters",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 1000000,
     },
     {
         "name": "xl",
@@ -115,6 +135,8 @@ input = [
         "description": "The expected life span of the building in years",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 1000,
     },
     {
         "name": "mass_ar_lm",
@@ -123,6 +145,8 @@ input = [
         "description": "Material intensity of dried timber or lumber used in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_vn",
@@ -131,6 +155,8 @@ input = [
         "description": "Material intensity of plywood used in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_st_it",
@@ -139,6 +165,8 @@ input = [
         "description": "Material intensity of steel used in pilot house construction in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_con_t",
@@ -147,6 +175,8 @@ input = [
         "description": "Material intensity of concrete used in pilot house construction in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_brick",
@@ -155,6 +185,8 @@ input = [
         "description": "Material intensity of bricks used in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_con",
@@ -163,6 +195,8 @@ input = [
         "description": "Material intensity of reinforced concrete used in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_mt_ps_co",
@@ -171,6 +205,8 @@ input = [
         "description": "Material intensity of a primary structure commercial mid-rise generic building in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_mt_ps_rs",
@@ -179,6 +215,8 @@ input = [
         "description": "Material intensity of a primary structure residential mid-rise generic building in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_mt_en_co",
@@ -187,6 +225,8 @@ input = [
         "description": "Material intensity of enclosure timber in commercial mid-rise generic building in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_mt_en_rs",
@@ -195,6 +235,8 @@ input = [
         "description": "Material intensity of enclosure timber in residential mid-rise generic building in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_wfb_en_co",
@@ -203,6 +245,8 @@ input = [
         "description": "Material intensity of enclosure wood fiber structure in commercial mid-rise generic building in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_wfb_en_rs",
@@ -211,6 +255,8 @@ input = [
         "description": "Material intensity of enclosure wood fiber structure in residential mid-rise generic building in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_con_ps_co",
@@ -219,6 +265,8 @@ input = [
         "description": "Material intensity of a primary structure commercial concrete mid-rise generic building in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_stl_ps_co",
@@ -227,6 +275,8 @@ input = [
         "description": "Material intensity of a primary structure commercial steel mid-rise generic building in tonnes per meters square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_stl_en_co",
@@ -235,6 +285,8 @@ input = [
         "description": "Material intensity of enclosure steel in mid-rise generic building in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_fbg_en_co",
@@ -243,6 +295,8 @@ input = [
         "description": "Material intensity of enclosure fiberglass in mid-rise generic building in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_gyp_en_co",
@@ -251,6 +305,8 @@ input = [
         "description": "Material intensity of enclosure gypsum in mid-rise generic building in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
     {
         "name": "mass_ar_xps_en_co",
@@ -259,6 +315,8 @@ input = [
         "description": "Material intensity of enclosure XPS in mid-rise generic building in tonnes per meter square",
         "type": "number",
         "default": "None",
+        "min": 1,
+        "max": 100000,
     },
 ]
 

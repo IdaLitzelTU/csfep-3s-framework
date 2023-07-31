@@ -81,6 +81,8 @@ It should contain 4 attributes:
             "description": "An area of forest harvested in hectares", # A clear description statement of the variable
             "type": "number", # data type of the variable i.e. number, text, array of numbers (array[numbers])
             "default": "None", # the default value of the variable if any else indicate None
+            "min": 0.1, # the minimum value of the variable
+            "max": 100000000,  # the maximum value of the variable
         },
     ]
     ```
