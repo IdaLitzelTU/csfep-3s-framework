@@ -1,4 +1,4 @@
-from framework import csfep_3s
+from framework import v1 as csfep_3s
 
 meta = {"version": "1.0.1", "by": "Galina Churkina", "contact": "some.name@mail.com"}
 
@@ -24,7 +24,7 @@ assumptions = {
     "Timber scrap": "is included in Storage",
     "Timber reintroduced to the forest": "is included in Storage",
     "Transport emmission carbon benefit": "is included in Substitution",
-    "Total carbon benefit":"is a sum of Sink and Substitution",
+    "Total carbon benefit": "is a sum of Sink and Substitution",
 }
 
 input = [
@@ -264,7 +264,6 @@ input = [
 
 
 def run(data, params, *args, **kwargs):
-
     """
     Make sure you have common data and output for each version of the model
     """
@@ -337,7 +336,6 @@ def run(data, params, *args, **kwargs):
     }
 
     for i in range(0, 3, 1):
-
         scoped_data = {}
         scenario_name = f"scenario_{i+1}"
 

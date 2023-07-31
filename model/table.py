@@ -51,6 +51,7 @@ class Material(Base, Serializable):
     best = Column(Float)
     min = Column(Float)
     max = Column(Float)
+    istimber = Column(Boolean)
 
 
 class Forest(Base, Serializable):
