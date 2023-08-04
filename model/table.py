@@ -18,7 +18,7 @@ class Catalog(Base, Serializable):
     publisher_name = Column(String)
 
     version = relationship("Version", back_populates="catalog")
-    data = relationship("Dataset", back_populates="catalog")
+    data = relationship("Dataset", back_populates="catalog", cascade="all,delete")
 
 
 class Version(Base, Serializable):
