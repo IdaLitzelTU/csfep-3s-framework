@@ -59,11 +59,30 @@ def put_dataset_object(db: Session, body: schema.CatalogCreate):
     return catalog.id
 
 
-def cast_dict(data):
-    out = {}
-    for key, value in data.items():
-        out[key] = cast_to_type(value)
-    return out
+def cast_dict(obj):
+    if isinstance(obj, dict):
+        out = {}
+        for key, value in obj.items():
+            if isinstance(value, str):
+                try:
+                    out[key] = float(value)
+                except ValueError:
+                    try:
+                        nested_dict = json.loads(value)
+                        if isinstance(nested_dict, dict):
+                            out[key] = cast_dict(nested_dict)
+                        elif isinstance(nested_dict, list):
+                            out[key] = [float(item) for item in nested_dict]
+                        else:
+                            out[key] = value
+                    except json.JSONDecodeError:
+                        out[key] = value
+            else:
+                out[key] = cast_dict(value)
+        return out
+    else:
+        return obj
+
 
 
 def get_dataset_data_object(db: Session, id: int):
@@ -74,19 +93,41 @@ def get_dataset_data_object(db: Session, id: int):
         out[entry.key] = entry.value
     return out
 
-
+""" 
 def cast_to_type(value, type=""):
-    # dtypes = {
-    #     "number": float,
-    #     "array": json.loads
-    # }
+    if is_valid_json(value):
+        v = json.loads(value)
+        if is_valid_json(v):
+            print("---nested dict",v)
+            v = cast_to_type(v)
+    else:
+        try:
+            v = float(value)
+        except Exception as e:
+            print("---ERROR",e)
+            v = str(value)
+    # dtypes = ('dict','float','string','')
 
     # typeCast = dtypes.get(type, float)
     # v = typeCast(value)
 
-    try:
-        v = float(value)
-    except Exception as e:
-        v = json.loads(value)
-
+    # try:
+    #     # is it valid json? -> jsonloads -> cast each value
+    #     # if not -> try to float 
+    #     # else to string
+    #     v = float(value)
+    # except Exception as e:
+    #     if value.startswith('{'):
+    #         v = cast_to_type(json.loads(value))
+    #     else:
+    #         v = str(value)
+    print(f'---cast{v}')
     return v
+
+def is_valid_json(json_string):
+    try:
+        json.loads(json_string)
+        return True
+    except ValueError:
+        return False
+"""

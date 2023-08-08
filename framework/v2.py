@@ -26,16 +26,18 @@ def to_coef(x):
     return x / 100
 
 
-def c_stored_in_building(materials, *, cf_log, **kwargs):
+def c_stored_in_building(materials, *, cf_log, c_material, **kwargs):
     """
     This function calculates amount of carbon stored in a building and
     amount of wood to be harvested for this building [t C]
     """
+    # print("----materials", materials)
+    # print("---c_materials",c_material)
     try:
         total = 0
-        for m in materials:
-            if m["istimber"]:
-                total = total + m["value"]
+        for id, value in materials.items(): # materials is { concrete: value }
+            if c_material.get(id, {"istimber": False}).get("istimber"):
+                total = total + value
         total = total * cf_log
         logger.info(f"Building carbon stored: {total} kgC")
         return total
