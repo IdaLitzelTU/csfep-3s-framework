@@ -217,7 +217,7 @@ def run(data, params, *args, **kwargs):
     substitution_building_mass = csfep_3s.total_mass(
         data["substitution_materials"]
     )  # KG
-
+    print('--c_stored_in_building',c_stored_in_building)
     c_stored_in_materials = c_stored_in_building / (
         data["manufacturing_prefabricated_used"] / 100
     )

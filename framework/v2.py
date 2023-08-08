@@ -31,8 +31,9 @@ def c_stored_in_building(materials, *, cf_log, c_material, **kwargs):
     This function calculates amount of carbon stored in a building and
     amount of wood to be harvested for this building [t C]
     """
-    # print("----materials", materials)
-    # print("---c_materials",c_material)
+    print("----materials", materials)
+    print("---c_materials",c_material)
+    print("---cf_log",cf_log)
     try:
         total = 0
         for id, value in materials.items(): # materials is { concrete: value }
@@ -97,10 +98,10 @@ def years_to_accumulate(
     carbon_harv,
     scenario,
     *,
-    harvest_area,
+    forest_harvest_area,
     forest_type,
-    harvest_intensity,
-    c_acc_forest,
+    forest_harvest_intensity,
+    forest_c_acc_rate,
     acc_rate,
     **kwargs,
 ):
@@ -113,9 +114,9 @@ def years_to_accumulate(
         if acc_rate:
             rate = acc_rate
         else:
-            rate = c_acc_forest[forest_type]
+            rate = forest_c_acc_rate[forest_type]
 
-        yr = carbon_harv / (rate[scenario] * harvest_area * harvest_intensity)
+        yr = carbon_harv / (rate[scenario] * forest_harvest_area * forest_harvest_intensity)
         logger.info(
             f"Number of years needed to accumulate harvested carbon using average carbon accumulation rate of a forest from the Cook-Paton database: {yr}"
         )

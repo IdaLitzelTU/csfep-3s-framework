@@ -74,10 +74,10 @@ def run_model_version(version: str, body: dict):
     """Runs the specified model version and returns the output of the model"""
     logger.info(f"Running model {version} with {body}")
     model = model_export.get(version)
-
+    
     if model:
         model_executable = model.get("exec")
-        print("---modelexec---",cursor.cast_dict(body))
+        
         results = model_executable(
             data=cursor.cast_dict(body), params=model.get("params")
         )
