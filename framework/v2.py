@@ -19,9 +19,7 @@ def convert_to_tco2(object, coefficient, obsolve=[]):
         elif isinstance(value,dict):
             out[key] = convert_to_tco2(value, coefficient, obsolve)
         else:
-            out[key] = value
-
-    print("--result out", out)
+            out[key] = value    
     return out
 
 

@@ -81,7 +81,6 @@ def run_model_version(version: str, body: dict):
         results = model_executable(
             data=cursor.cast_dict(body), params=model.get("params")
         )
-        print(f"---Model results: {results}")
         logger.info(f"Model results: {results}")
     else:
         logger.debug(
