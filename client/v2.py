@@ -16,8 +16,8 @@ params = {
     "cf_log": 0.5,
     "c2co2": 3.67,
     # TODO: move transport to BD?
-    "k_truck": {"min": 0.00017398, "best": 0.00036024, "max": 0.00055731},
-    "k_sea": {"min": 0.000013155, "best": 0.000013155, "max": 0.000013155},
+    "k_truck": {"min": 0.00017398, "best": 0.00036024, "max": 0.00055731}, # should it be * 1000 since it's kilos not tonns?
+    "k_sea": {"min": 0.000013155, "best": 0.000013155, "max": 0.000013155}, # should it be * 1000 since it's kilos not tonns?
     "c_material": {x["id"]: {"min": x["min"], "best": x["best"], "max": x["max"], "istimber": x["istimber"]} for x in materials},
     "c_acc_forest": {x["id"]: {"min": x["min"], "best": x["best"], "max": x["max"]} for x in forests},
 }
@@ -207,9 +207,10 @@ def run(data, params, *args, **kwargs):
     # carbon needed to be extracted from forest or demand for carbon
     #print("--data",data)
     # t C stored in materials before construction
-    c_stored_in_building = csfep_3s.c_stored_in_building(
+    
+    c_stored_in_building = round(csfep_3s.c_stored_in_building(
         data["substitution_materials"], **data, **params
-    )  # KgC
+    ), 0)  # kgC
 
     conventional_building_mass = csfep_3s.total_mass(
         data["conventional_materials"]
@@ -218,45 +219,30 @@ def run(data, params, *args, **kwargs):
         data["substitution_materials"]
     )  # KG
     print('--conventional_building_mass',conventional_building_mass)
-    c_stored_in_materials = c_stored_in_building / (
-        data["manufacturing_prefabricated_used"] / 100
-    )
-    # tC stored in roundwood brought to the plant
-    c_stored_in_roundwood = c_stored_in_materials / (
-        data["manufacturing_wood_used"] / 100
-    )
+    c_stored_in_materials = c_stored_in_building / (data["manufacturing_prefabricated_used"] * 0.01)
+    
+    # kgC stored in roundwood brought to the plant
+    c_stored_in_roundwood = c_stored_in_materials / (data["manufacturing_wood_used"] * 0.01)
+    
 
-    c_needed_for_building = c_stored_in_roundwood / (
-        1 - data["forest_biomass_left"] / 100
-    )  # tC stored in harested trees
-
-    # c_accum_forest = 0
-    # number_of_buildings = data[
-    #     "building_number"
-    # ]  # number of buildings to be built from harvested wood
-
-    # # tCstored in buildings constructed from harvested wood
-    # c_buildings = number_of_buildings * c_stored_in_building
-
+    c_needed_for_building = c_stored_in_roundwood / (1 - (data["forest_biomass_left"] * 0.01))  # kgC stored in harested trees
+    
     # FIXME: biomass left is 1 - harvest intensity?
-    # tC stored in scrap wood from material manufacturing and construction
-    c_harvest_2_scrap = c_stored_in_roundwood - c_stored_in_building
-    c_harvest_2_forest = (
-        c_needed_for_building * data["forest_biomass_left"] / 100
-    )  # tC returuned to forest
+    # kgC stored in scrap wood from material manufacturing and construction
+    c_harvest_2_scrap = c_stored_in_roundwood - c_stored_in_building # number_of_buildings * c_stored_in_building
+    c_harvest_2_forest = c_needed_for_building * data["forest_biomass_left"] * 0.01 # kgC returuned to forest
 
-    # Calculate time to replanish carbon debt in a forest
-    # changed index as python starts from 0 not 1
+    # TODO Calculate time to replanish carbon debt in a forest
     years_to_regrow_forest = csfep_3s.years_to_accumulate(
         c_needed_for_building, "best", **data, **params
-    )
+    ) 
 
     constants = {
-        "Accumulated": 0,
+        "Accumulated": 0, # c_accum_forest
         "Buildings floor area m2": data["building_floor_area"],
-        "Number of Buildings": 1,
-        "Harvested": c_needed_for_building,
-        "Years to Regrow Forest": years_to_regrow_forest,
+        "Number of Buildings": 1, #     number_of_buildings = data["building_number"]
+        "Harvested": round(c_needed_for_building, 0),
+        "Years to Regrow Forest": round(years_to_regrow_forest, 0),
     }
 
     # RESULTS
@@ -275,11 +261,12 @@ def run(data, params, *args, **kwargs):
         },
     }
 
+    scenario_number = 1
+    round_decimal = 0
     for i in ["min", "best", "max"]:
         ## define conventional building materials
         ## define timber building material
         scoped_data = {}
-        scenario_number = 1
         scenario_name = f"scenario_{scenario_number}"
         scenario_number = scenario_number + 1
 
@@ -292,50 +279,53 @@ def run(data, params, *args, **kwargs):
         c_emitted_substitution = csfep_3s.emitted_manufacturing(
             i, data["substitution_materials"], **params
         )
-        #error on cf_log
+        # convert mass to tonn
         c_emitted_transport_conventional = csfep_3s.emitted_transporting(
-            conventional_building_mass,
+            conventional_building_mass / 1000,
             data["conventional_transport_land"],
             params["k_truck"][i],
             **params,
         ) + csfep_3s.emitted_transporting(
-            conventional_building_mass,
+            conventional_building_mass / 1000,
             data["conventional_transport_water"],
             params["k_sea"][i],
             **params,
         )
 
         c_emitted_transport_substitution = csfep_3s.emitted_transporting(
-            substitution_building_mass,
+            substitution_building_mass / 1000,
             data["substitution_transport_land"],
             params["k_truck"][i],
             **params,
         ) + csfep_3s.emitted_transporting(
-            substitution_building_mass,
+            substitution_building_mass / 1000,
             data["substitution_transport_water"],
             params["k_sea"][i],
             **params,
         )
 
-        scoped_data["conventional"] = {
-            "production": c_emitted_conventional,
-            "transport": c_emitted_transport_conventional,
-        }
-        scoped_data["substitution"] = {
-            "production": c_emitted_substitution,
-            "transport": c_emitted_transport_substitution,
-        }
+        scoped_data["SC Production"] = round(c_emitted_conventional / 1000, round_decimal)
+        scoped_data["SC Transport"] = round(c_emitted_transport_conventional, round_decimal)
+        
+        scoped_data["MT Production"] = round(c_emitted_substitution / 1000, round_decimal)
+        scoped_data["MT Transport"] = round(c_emitted_transport_substitution, round_decimal)
+        
+        
 
-        scoped_data["recovered"] = c_recovered_forest
+        scoped_data["Carbon Recovered during Building Lifetime"] = round(c_recovered_forest / 1000, round_decimal)
 
-        scoped_data["C2Scrap"] = c_harvest_2_scrap
-        scoped_data["C2Forest"] = c_harvest_2_forest
-        scoped_data["C2Buildings"] = c_stored_in_building
+        scoped_data["C2Scrap"] = round(c_harvest_2_scrap / 1000, round_decimal)
+        scoped_data["C2Forest"] = round(c_harvest_2_forest / 1000, round_decimal)
+        scoped_data["C2Buildings"] = round(c_stored_in_building / 1000, round_decimal)
 
         output["tC"][scenario_name] = scoped_data
+        print("scope", scoped_data)
         output["tCO2"][scenario_name] = csfep_3s.convert_to_tco2(
             scoped_data, params["c2co2"]
         )
 
     output["assumptions"] = assumptions
     return output
+
+## 1000.10 // 100 => 10
+## 1000,10 // 10 => (100,1)
