@@ -205,7 +205,7 @@ def run(data, params, *args, **kwargs):
 
     # Calculate carbon storage in timber building and
     # carbon needed to be extracted from forest or demand for carbon
-    #print("--data",data)
+   
     # t C stored in materials before construction
     
     c_stored_in_building = round(csfep_3s.c_stored_in_building(
@@ -218,7 +218,6 @@ def run(data, params, *args, **kwargs):
     substitution_building_mass = csfep_3s.total_mass(
         data["substitution_materials"]
     )  # KG
-    print('--conventional_building_mass',conventional_building_mass)
     c_stored_in_materials = c_stored_in_building / (data["manufacturing_prefabricated_used"] * 0.01)
     
     # kgC stored in roundwood brought to the plant
@@ -319,13 +318,9 @@ def run(data, params, *args, **kwargs):
         scoped_data["C2Buildings"] = round(c_stored_in_building / 1000, round_decimal)
 
         output["tC"][scenario_name] = scoped_data
-        print("scope", scoped_data)
         output["tCO2"][scenario_name] = csfep_3s.convert_to_tco2(
             scoped_data, params["c2co2"]
         )
 
     output["assumptions"] = assumptions
     return output
-
-## 1000.10 // 100 => 10
-## 1000,10 // 10 => (100,1)
