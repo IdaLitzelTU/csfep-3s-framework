@@ -24,10 +24,10 @@ def model_versions(modules, client):
         "meta": v1.meta,
         "input": v1.input,
         "params":v1.params
-        }
+        },
     }
 
-   """
+"""
     model_export = {}
     for index, mod in enumerate(modules):
         model_export[mod] = {

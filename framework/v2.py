@@ -12,7 +12,6 @@ if logger.hasHandlers():
 
 
 def convert_to_tco2(object, coefficient, obsolve=[]):
-    print("--object, coeff", object,obsolve)
     out = {}
     for key, value in object.items():
         if key not in obsolve and not isinstance(value,dict):
@@ -76,7 +75,6 @@ def emitted_manufacturing(scenario, materials, *, c_material, c2co2, **kwargs):
 
 
 def emitted_transporting(mass, distance, coeff, *, c2co2,**kwargs):
-    #print("--mass, distance,",mass,distance,coeff,c2co2)
     try:
         c_emitted = mass * distance * coeff / c2co2
         logger.info(
