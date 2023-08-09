@@ -18,8 +18,8 @@ params = {
     # TODO: move transport to BD?
     "k_truck": {"min": 0.00017398, "best": 0.00036024, "max": 0.00055731},
     "k_sea": {"min": 0.000013155, "best": 0.000013155, "max": 0.000013155},
-    "c_material": {x["id"]: [x["min"], x["best"], x["max"]] for x in materials},
-    "c_acc_forest": {x["id"]: [x["min"], x["best"], x["max"]] for x in forests},
+    "c_material": {x["id"]: {"min": x["min"], "best": x["best"], "max": x["max"], "istimber": x["istimber"]} for x in materials},
+    "c_acc_forest": {x["id"]: {"min": x["min"], "best": x["best"], "max": x["max"]} for x in forests},
 }
 
 assumptions = {
@@ -205,7 +205,7 @@ def run(data, params, *args, **kwargs):
 
     # Calculate carbon storage in timber building and
     # carbon needed to be extracted from forest or demand for carbon
-
+    #print("--data",data)
     # t C stored in materials before construction
     c_stored_in_building = csfep_3s.c_stored_in_building(
         data["substitution_materials"], **data, **params
@@ -217,7 +217,7 @@ def run(data, params, *args, **kwargs):
     substitution_building_mass = csfep_3s.total_mass(
         data["substitution_materials"]
     )  # KG
-    print('--c_stored_in_building',c_stored_in_building)
+    print('--conventional_building_mass',conventional_building_mass)
     c_stored_in_materials = c_stored_in_building / (
         data["manufacturing_prefabricated_used"] / 100
     )
@@ -292,7 +292,7 @@ def run(data, params, *args, **kwargs):
         c_emitted_substitution = csfep_3s.emitted_manufacturing(
             i, data["substitution_materials"], **params
         )
-
+        #error on cf_log
         c_emitted_transport_conventional = csfep_3s.emitted_transporting(
             conventional_building_mass,
             data["conventional_transport_land"],

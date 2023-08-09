@@ -12,13 +12,21 @@ if logger.hasHandlers():
 
 
 def convert_to_tco2(object, coefficient, obsolve=[]):
+    print("--object, coeff", object,obsolve)
     out = {}
     for key, value in object.items():
-        if key not in obsolve:
+        if key not in obsolve and isinstance(value,float):
             out[key] = value * coefficient
+        elif isinstance(value,dict):
+            for subkey, subvalue in value.items():
+                if isinstance(subvalue, float):
+                    out[key] = { subkey: subvalue * coefficient }
+                else: 
+                    out[key] = { subkey: subvalue }
         else:
             out[key] = value
 
+    print("--result out", out)
     return out
 
 
@@ -31,9 +39,7 @@ def c_stored_in_building(materials, *, cf_log, c_material, **kwargs):
     This function calculates amount of carbon stored in a building and
     amount of wood to be harvested for this building [t C]
     """
-    print("----materials", materials)
-    print("---c_materials",c_material)
-    print("---cf_log",cf_log)
+    
     try:
         total = 0
         for id, value in materials.items(): # materials is { concrete: value }
@@ -48,7 +54,7 @@ def c_stored_in_building(materials, *, cf_log, c_material, **kwargs):
 
 def total_mass(materials):
     try:
-        total_m = sum([x["value"] for x in materials])
+        total_m = sum(materials.values())
         logger.info(f"Total building mass: {total_m} tC")
         return total_m
     except Exception as e:
@@ -72,7 +78,8 @@ def emitted_manufacturing(scenario, materials, *, c_material, c2co2, **kwargs):
         logger.exception(e)
 
 
-def emitted_transporting(mass, distance, coeff, *, c2co2):
+def emitted_transporting(mass, distance, coeff, *, c2co2,**kwargs):
+    #print("--mass, distance,",mass,distance,coeff,c2co2)
     try:
         c_emitted = mass * distance * coeff / c2co2
         logger.info(
@@ -102,7 +109,7 @@ def years_to_accumulate(
     forest_type,
     forest_harvest_intensity,
     forest_c_acc_rate,
-    acc_rate,
+    c_acc_forest, #to match in params
     **kwargs,
 ):
     """
@@ -111,8 +118,8 @@ def years_to_accumulate(
     database
     """
     try:
-        if acc_rate:
-            rate = acc_rate
+        if c_acc_forest:
+            rate = c_acc_forest
         else:
             rate = forest_c_acc_rate[forest_type]
 
