@@ -18,7 +18,6 @@ def model_versions(modules, client):
     """
     This function iterates through the model version files found in the client folder
     and returns a dictionary with the module attributes of each version like below:
-
     model_export = {
     "v1": {
         "exec": v1.run,
@@ -28,7 +27,7 @@ def model_versions(modules, client):
         },
     }
 
-    """
+"""
     model_export = {}
     for index, mod in enumerate(modules):
         model_export[mod] = {

@@ -59,11 +59,30 @@ def put_dataset_object(db: Session, body: schema.CatalogCreate):
     return catalog.id
 
 
-def cast_dict(data):
-    out = {}
-    for key, value in data.items():
-        out[key] = cast_to_type(value)
-    return out
+def cast_dict(obj):
+    if isinstance(obj, dict):
+        out = {}
+        for key, value in obj.items():
+            if isinstance(value, str):
+                try:
+                    out[key] = float(value)
+                except ValueError:
+                    try:
+                        nested_dict = json.loads(value)
+                        if isinstance(nested_dict, dict):
+                            out[key] = cast_dict(nested_dict)
+                        elif isinstance(nested_dict, list):
+                            out[key] = [float(item) for item in nested_dict]
+                        else:
+                            out[key] = value
+                    except json.JSONDecodeError:
+                        out[key] = value
+            else:
+                out[key] = cast_dict(value)
+        return out
+    else:
+        return obj
+
 
 
 def get_dataset_data_object(db: Session, id: int):
@@ -73,20 +92,3 @@ def get_dataset_data_object(db: Session, id: int):
     for entry in data:
         out[entry.key] = entry.value
     return out
-
-
-def cast_to_type(value, type=""):
-    # dtypes = {
-    #     "number": float,
-    #     "array": json.loads
-    # }
-
-    # typeCast = dtypes.get(type, float)
-    # v = typeCast(value)
-
-    try:
-        v = float(value)
-    except Exception as e:
-        v = json.loads(value)
-
-    return v
