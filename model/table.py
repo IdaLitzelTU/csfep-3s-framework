@@ -16,7 +16,6 @@ class Catalog(Base, Serializable):
     description = Column(String)
     organisation_name = Column(String)
     publisher_name = Column(String)
-
     version = relationship("Version", back_populates="catalog")
     data = relationship("Dataset", back_populates="catalog", cascade="all,delete")
 
