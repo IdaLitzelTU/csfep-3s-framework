@@ -16,9 +16,9 @@ class Catalog(Base, Serializable):
     description = Column(String)
     organisation_name = Column(String)
     publisher_name = Column(String)
-
     version = relationship("Version", back_populates="catalog")
-    data = relationship("Dataset", back_populates="catalog")
+
+    data = relationship("Dataset", back_populates="catalog",cascade="all, delete-orphan")
 
 
 class Version(Base, Serializable):
@@ -27,7 +27,7 @@ class Version(Base, Serializable):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     dataset = Column(Integer, ForeignKey("catalog.id"))
-    catalog = relationship("Catalog", back_populates="version")
+    catalog = relationship("Catalog", back_populates="version",cascade="all, delete")
 
 
 class Dataset(Base, Serializable):
