@@ -152,7 +152,7 @@ input = [
         "category": "Forest",
         "display_name": "Carbon accumulation rate (tC/ha/y)",
         "description": "Carbon accumulation rate (min, best_guess, max) (comma separated) (leave blank for default value based on the forest type selected)",
-        "type": "array[number]",
+        "type": "array",
         "default": "None",
     },
     {

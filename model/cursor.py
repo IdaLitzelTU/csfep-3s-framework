@@ -23,17 +23,6 @@ def get_catalog_entry(db: Session, id: int):
     return db.query(table.Catalog).filter(table.Catalog.id == id).first()
 
 
-def determine_type(value):
-    try:
-        output = float(value)
-    except:
-        try:
-            output = json.loads(value)
-        except:
-            output = value
-    return output.__class__.__name__
-
-
 def put_dataset_object(db: Session, body: schema.CatalogCreate):
     name = body.dataset_name
     description = body.description
@@ -56,12 +45,10 @@ def put_dataset_object(db: Session, body: schema.CatalogCreate):
     # TODO: validate compatibility
     version = table.Version(name=model_version, dataset=catalog.id)
     db.add(version)
-
-    for key, value in body.data.items():
+    for var in body.data:
         # create dataset
-        datatype = determine_type(value)
         dataset = table.Dataset(
-            catalog_id=catalog.id, key=key, value=value, datatype=datatype
+            catalog_id=catalog.id, key=var["name"], value=var["value"], inputtype=var["type"]
         )
         db.add(dataset)
 
@@ -73,19 +60,23 @@ def put_dataset_object(db: Session, body: schema.CatalogCreate):
 
 def cast_dict(data):
     out = {}
-    for key, value in data.items():
-        datatype = determine_type(value)
-        out[key] = cast_to_type(value, datatype)
+    for obj in json.loads(data):
+        key = obj["name"]
+        type = obj["type"]
+        value = cast_to_type(obj["value"],type)
+        out[key] = value
     return out
 
 
 def get_dataset_data_object(db: Session, id: int):
     data = db.query(table.Dataset).filter(table.Dataset.catalog_id == id).all()
-    out = {}
+    out = []
 
     for entry in data:
-        out[entry.key] = entry.value
-    return out
+        out.append(
+            {"name": entry.key, "value": entry.value, "type": entry.inputtype}
+        )
+    return json.dumps(out)
 
 
 def cast_to_array(value):
@@ -93,7 +84,7 @@ def cast_to_array(value):
     Assumption: All arrays store float values.
     """
     arr = json.loads(value)
-    arr = [cast_to_type(x, "float") for x in arr]
+    arr = [cast_to_type(x, "number") for x in arr]
     return arr
 
 
@@ -103,16 +94,16 @@ def cast_to_dict(value):
     """
     dic = json.loads(value)
     for id, val in dic.items():
-        dic[id] = cast_to_type(val, type="float")
+        dic[id] = cast_to_type(val, type="number")
     return dic
 
 
 def cast_to_type(value, type):
     dtypes = {
-        "float": float,
-        "list": cast_to_array,
-        "dict": cast_to_dict,
-        "str": str,
+        "number": float,
+        "array": cast_to_array,
+        "group": cast_to_dict,
+        "select": str,
     }
     parser_func = dtypes[type]
     try:

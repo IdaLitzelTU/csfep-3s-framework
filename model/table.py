@@ -37,7 +37,7 @@ class Dataset(Base, Serializable):
     catalog_id = Column(Integer, ForeignKey("catalog.id"))
     key = Column(String)
     value = Column(String)
-    datatype = Column(String)
+    inputtype = Column(String)
 
     catalog = relationship("Catalog", back_populates="data")
 

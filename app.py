@@ -70,7 +70,7 @@ def get_model_information(version: str):
 
 
 @app.post("/run/{version}")
-def run_model_version(version: str, body: dict):
+def run_model_version(version: str, body: str):
     """Runs the specified model version and returns the output of the model"""
     logger.info(f"Running model {version} with {body}")
     model = model_export.get(version)

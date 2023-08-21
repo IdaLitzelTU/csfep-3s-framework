@@ -53,7 +53,7 @@ input = [
         "category": "Forest",
         "display_name": "Carbon accumulation rate (MgC or t per ha per year)",
         "description": "Carbon accumulation rate in Carribean pine plantation in metric tonnes of carbon (MgC) or ton per hectares per year ",
-        "type": "array[number]",
+        "type": "array",
         "default": "None",
         "min": 0,
         "max": 20,

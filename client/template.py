@@ -13,7 +13,7 @@ input = [
         "category": "",  # category which the input variable falls under e.g. Forest, Manufacturing, Building
         "display_name": "",  # The display name of the input variable
         "description": "",  # A clear description statement of the variable
-        "type": "",  # data type of the variable i.e. number, text, array of numbers (array[numbers])
+        "type": "",  # data type of the variable, accepted values: group, number, select, array
         "default": "",  # the default value of the variable if any else indicate None
         "min": "",  # the minimum value of the variable
         "max": "",  # the maximum value of the variable

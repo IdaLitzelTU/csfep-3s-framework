@@ -4,7 +4,7 @@ from pydantic import BaseModel
 class Dataset(BaseModel):
     key: str
     value: str
-    datatype: str
+    inputtype: str
 
     class Config:
         orm_mode = True
@@ -47,4 +47,4 @@ class CatalogCreate(BaseModel):
     organisation_name: str = ""
     publisher_name: str = ""
     version: str
-    data: dict
+    data: list
