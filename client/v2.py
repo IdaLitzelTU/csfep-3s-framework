@@ -56,8 +56,8 @@ input = [
         "default": "None",
     },
     {
-        "name": "conventional_materials",
-        "category": "Conventional building materials",
+        "name": "mineral_based_materials",
+        "category": "Mineral based building materials",
         "display_name": "Select materials",
         "description": "Materials used in the building",
         "type": "group",
@@ -76,24 +76,24 @@ input = [
         ),
     },
     {
-        "name": "conventional_transport_land",
-        "category": "Conventional building transport",
+        "name": "mineral_based_transport_land",
+        "category": "Mineral based building transport",
         "display_name": "Land transport distance (km)",
         "description": "Land transport distance in kilometers",
         "type": "number",
         "default": "None",
     },
     {
-        "name": "conventional_transport_water",
-        "category": "Conventional building transport",
+        "name": "mineral_based_transport_water",
+        "category": "Mineral based building transport",
         "display_name": "Water transport distance (km)",
         "description": "Water transport distance in kilometers",
         "type": "number",
         "default": "None",
     },
     {
-        "name": "substitution_materials",
-        "category": "Timber building materials",
+        "name": "timber_based_materials",
+        "category": "Biomass based / Timber building materials",
         "display_name": "Select materials",
         "description": "Materials used in the building",
         "type": "group",
@@ -211,8 +211,8 @@ def run(data, params, *args, **kwargs):
         data["substitution_materials"], **data, **params
     ), 0)  # kgC
 
-    conventional_building_mass = csfep_3s.total_mass(
-        data["conventional_materials"]
+    mineral_based_building_mass = csfep_3s.total_mass(
+        data["mineral_based_materials"]
     )  # KG
     substitution_building_mass = csfep_3s.total_mass(
         data["substitution_materials"]
@@ -262,7 +262,7 @@ def run(data, params, *args, **kwargs):
     scenario_number = 1
     round_decimal = 2
     for i in ["min", "best", "max"]:
-        ## define conventional building materials
+        ## define mineral building materials
         ## define timber building material
         scoped_data = {}
         scenario_name = f"scenario_{scenario_number}"
@@ -270,22 +270,22 @@ def run(data, params, *args, **kwargs):
 
         c_recovered_forest = csfep_3s.forest_recov(i, **data, **params)
 
-        c_emitted_conventional = csfep_3s.emitted_manufacturing(
-            i, data["conventional_materials"], **params
+        c_emitted_mineral = csfep_3s.emitted_manufacturing(
+            i, data["mineral_based_materials"], **params
         )
 
         c_emitted_substitution = csfep_3s.emitted_manufacturing(
             i, data["substitution_materials"], **params
         )
         # convert mass to tonn
-        c_emitted_transport_conventional = csfep_3s.emitted_transporting(
-            conventional_building_mass / 1000,
-            data["conventional_transport_land"],
+        c_emitted_transport_mineral = csfep_3s.emitted_transporting(
+            mineral_based_building_mass / 1000,
+            data["mineral_based_transport_land"],
             params["k_truck"][i],
             **params,
         ) + csfep_3s.emitted_transporting(
-            conventional_building_mass / 1000,
-            data["conventional_transport_water"],
+            mineral_based_building_mass / 1000,
+            data["mineral_based_transport_water"],
             params["k_sea"][i],
             **params,
         )
@@ -302,8 +302,8 @@ def run(data, params, *args, **kwargs):
             **params,
         )
         #carbon substitution
-        scoped_data["SC Production"] = round(c_emitted_conventional / 1000, round_decimal)
-        scoped_data["SC Transport"] = round(c_emitted_transport_conventional, round_decimal)
+        scoped_data["SC Production"] = round(c_emitted_mineral / 1000, round_decimal)
+        scoped_data["SC Transport"] = round(c_emitted_transport_mineral, round_decimal)
         
         scoped_data["MT Production"] = round(c_emitted_substitution / 1000, round_decimal)
         scoped_data["MT Transport"] = round(c_emitted_transport_substitution, round_decimal)
