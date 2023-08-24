@@ -39,7 +39,7 @@ def c_stored_in_building(materials, *, cf_log, c_material, **kwargs):
             if c_material.get(id, {"istimber": False}).get("istimber"):
                 total = total + value
         total = total * cf_log
-        logger.info(f"Building carbon stored: {total} kgC")
+        logger.info(f"Building carbon stored: {total} kgC") 
         return total
     except Exception as e:
         logger.exception(e)
@@ -95,7 +95,7 @@ def wood_demand(carbon_bld, *, wood_used, material_used, **kwargs):
 
 
 def years_to_accumulate(
-    carbon_harv,
+    carbon_harv, #should be in tonnes?
     scenario,
     *,
     forest_harvest_area,
@@ -109,7 +109,8 @@ def years_to_accumulate(
     """
     try:
         c_acc_rate = get_scenario_c_acc_rate(scenario, **kwargs)
-        yr = carbon_harv / (c_acc_rate * forest_harvest_area * forest_harvest_intensity)
+        #change harvest intensity to fraction
+        yr = carbon_harv / (c_acc_rate * forest_harvest_area * (forest_harvest_intensity * 0.01))
         logger.info(
             f"Number of years needed to accumulate harvested carbon using average carbon accumulation rate of a forest from the Cook-Paton database: {yr}"
         )
@@ -149,7 +150,7 @@ def forest_recov(
         # tCO2/ha/y * ha = tCO2/y
         cr = (
             forest_harvest_area
-            * forest_harvest_intensity
+            * (forest_harvest_intensity * 0.01)
             * c_acc_rate
             * building_lifespan
         )

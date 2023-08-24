@@ -207,7 +207,6 @@ def run(data, params, *args, **kwargs):
     # carbon needed to be extracted from forest or demand for carbon
    
     # t C stored in materials before construction
-    
     c_stored_in_building = round(csfep_3s.c_stored_in_building(
         data["substitution_materials"], **data, **params
     ), 0)  # kgC
@@ -240,7 +239,7 @@ def run(data, params, *args, **kwargs):
         "Accumulated": 0, # c_accum_forest
         "Buildings floor area m2": data["building_floor_area"],
         "Number of Buildings": 1, #     number_of_buildings = data["building_number"]
-        "Harvested": round(c_needed_for_building, 0),
+        "Harvested": round(c_needed_for_building / 1000, 0),
         "Years to Regrow Forest": round(years_to_regrow_forest, 0),
     }
 
@@ -261,7 +260,7 @@ def run(data, params, *args, **kwargs):
     }
 
     scenario_number = 1
-    round_decimal = 0
+    round_decimal = 2
     for i in ["min", "best", "max"]:
         ## define conventional building materials
         ## define timber building material
@@ -302,7 +301,7 @@ def run(data, params, *args, **kwargs):
             params["k_sea"][i],
             **params,
         )
-
+        #carbon substitution
         scoped_data["SC Production"] = round(c_emitted_conventional / 1000, round_decimal)
         scoped_data["SC Transport"] = round(c_emitted_transport_conventional, round_decimal)
         
@@ -310,9 +309,9 @@ def run(data, params, *args, **kwargs):
         scoped_data["MT Transport"] = round(c_emitted_transport_substitution, round_decimal)
         
         
-
+        #carbon sink
         scoped_data["Carbon Recovered during Building Lifetime"] = round(c_recovered_forest / 1000, round_decimal)
-
+        #carbon storage
         scoped_data["C2Scrap"] = round(c_harvest_2_scrap / 1000, round_decimal)
         scoped_data["C2Forest"] = round(c_harvest_2_forest / 1000, round_decimal)
         scoped_data["C2Buildings"] = round(c_stored_in_building / 1000, round_decimal)
@@ -321,6 +320,5 @@ def run(data, params, *args, **kwargs):
         output["tCO2"][scenario_name] = csfep_3s.convert_to_tco2(
             scoped_data, params["c2co2"]
         )
-
     output["assumptions"] = assumptions
     return output
