@@ -112,7 +112,7 @@ input = [
         ),
     },
     {
-        "name": "substitution_transport_land",
+        "name": "timber_based_transport_land",
         "category": "Timber building transport",
         "display_name": "Land transport distance (km)",
         "description": "Land transport distance in kilometers",
@@ -120,7 +120,7 @@ input = [
         "default": "None",
     },
     {
-        "name": "substitution_transport_water",
+        "name": "timber_based_transport_water",
         "category": "Timber building transport",
         "display_name": "Water transport distance (km)",
         "description": "Water transport distance in kilometers",
@@ -208,14 +208,14 @@ def run(data, params, *args, **kwargs):
    
     # t C stored in materials before construction
     c_stored_in_building = round(csfep_3s.c_stored_in_building(
-        data["substitution_materials"], **data, **params
+        data["timber_based_materials"], **data, **params
     ), 0)  # kgC
 
     mineral_based_building_mass = csfep_3s.total_mass(
         data["mineral_based_materials"]
     )  # KG
-    substitution_building_mass = csfep_3s.total_mass(
-        data["substitution_materials"]
+    timber_based_building_mass = csfep_3s.total_mass(
+        data["timber_based_materials"]
     )  # KG
     c_stored_in_materials = c_stored_in_building / (data["manufacturing_prefabricated_used"] * 0.01)
     
@@ -274,8 +274,8 @@ def run(data, params, *args, **kwargs):
             i, data["mineral_based_materials"], **params
         )
 
-        c_emitted_substitution = csfep_3s.emitted_manufacturing(
-            i, data["substitution_materials"], **params
+        c_emitted_timber = csfep_3s.emitted_manufacturing(
+            i, data["timber_based_materials"], **params
         )
         # convert mass to tonn
         c_emitted_transport_mineral = csfep_3s.emitted_transporting(
@@ -290,14 +290,14 @@ def run(data, params, *args, **kwargs):
             **params,
         )
 
-        c_emitted_transport_substitution = csfep_3s.emitted_transporting(
-            substitution_building_mass / 1000,
-            data["substitution_transport_land"],
+        c_emitted_transport_timber = csfep_3s.emitted_transporting(
+            timber_based_building_mass / 1000,
+            data["timber_transport_land"],
             params["k_truck"][i],
             **params,
         ) + csfep_3s.emitted_transporting(
-            substitution_building_mass / 1000,
-            data["substitution_transport_water"],
+            timber_based_building_mass / 1000,
+            data["timber_based_transport_water"],
             params["k_sea"][i],
             **params,
         )
@@ -305,8 +305,8 @@ def run(data, params, *args, **kwargs):
         scoped_data["SC Production"] = round(c_emitted_mineral / 1000, round_decimal)
         scoped_data["SC Transport"] = round(c_emitted_transport_mineral, round_decimal)
         
-        scoped_data["MT Production"] = round(c_emitted_substitution / 1000, round_decimal)
-        scoped_data["MT Transport"] = round(c_emitted_transport_substitution, round_decimal)
+        scoped_data["MT Production"] = round(c_emitted_timber / 1000, round_decimal)
+        scoped_data["MT Transport"] = round(c_emitted_transport_timber, round_decimal)
         
         
         #carbon sink
