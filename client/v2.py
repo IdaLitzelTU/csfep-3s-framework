@@ -92,7 +92,7 @@ input = [
         "default": "None",
     },
     {
-        "name": "timber_based_materials",
+        "name": "timber_materials",
         "category": "Biomass based / Timber building materials",
         "display_name": "Select materials",
         "description": "Materials used in the building",
@@ -112,7 +112,7 @@ input = [
         ),
     },
     {
-        "name": "timber_based_transport_land",
+        "name": "timber_transport_land",
         "category": "Biomass based / Timber building transport",
         "display_name": "Land transport distance (km)",
         "description": "Land transport distance in kilometers",
@@ -120,7 +120,7 @@ input = [
         "default": "None",
     },
     {
-        "name": "timber_based_transport_water",
+        "name": "timber_transport_water",
         "category": "Biomass based / Timber building transport",
         "display_name": "Water transport distance (km)",
         "description": "Water transport distance in kilometers",
@@ -208,14 +208,14 @@ def run(data, params, *args, **kwargs):
    
     # t C stored in materials before construction
     c_stored_in_building = round(csfep_3s.c_stored_in_building(
-        data["timber_based_materials"], **data, **params
+        data["timber_materials"], **data, **params
     ), 0)  # kgC
 
     mineral_based_building_mass = csfep_3s.total_mass(
         data["mineral_based_materials"]
     )  # KG
-    timber_based_building_mass = csfep_3s.total_mass(
-        data["timber_based_materials"]
+    timber_building_mass = csfep_3s.total_mass(
+        data["timber_materials"]
     )  # KG
     c_stored_in_materials = c_stored_in_building / (data["manufacturing_prefabricated_used"] * 0.01)
     
@@ -275,7 +275,7 @@ def run(data, params, *args, **kwargs):
         )
 
         c_emitted_timber = csfep_3s.emitted_manufacturing(
-            i, data["timber_based_materials"], **params
+            i, data["timber_materials"], **params
         )
         # convert mass to tonn
         c_emitted_transport_mineral = csfep_3s.emitted_transporting(
@@ -291,13 +291,13 @@ def run(data, params, *args, **kwargs):
         )
 
         c_emitted_transport_timber = csfep_3s.emitted_transporting(
-            timber_based_building_mass / 1000,
-            data["timber_based_transport_land"],
+            timber_building_mass / 1000,
+            data["timber_transport_land"],
             params["k_truck"][i],
             **params,
         ) + csfep_3s.emitted_transporting(
-            timber_based_building_mass / 1000,
-            data["timber_based_transport_water"],
+            timber_building_mass / 1000,
+            data["timber_transport_water"],
             params["k_sea"][i],
             **params,
         )
