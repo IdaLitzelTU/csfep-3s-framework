@@ -292,7 +292,7 @@ def run(data, params, *args, **kwargs):
 
         c_emitted_transport_timber = csfep_3s.emitted_transporting(
             timber_based_building_mass / 1000,
-            data["timber_transport_land"],
+            data["timber_based_transport_land"],
             params["k_truck"][i],
             **params,
         ) + csfep_3s.emitted_transporting(
