@@ -113,7 +113,7 @@ input = [
     },
     {
         "name": "timber_based_transport_land",
-        "category": "Timber building transport",
+        "category": "Biomass based / Timber building transport",
         "display_name": "Land transport distance (km)",
         "description": "Land transport distance in kilometers",
         "type": "number",
@@ -121,7 +121,7 @@ input = [
     },
     {
         "name": "timber_based_transport_water",
-        "category": "Timber building transport",
+        "category": "Biomass based / Timber building transport",
         "display_name": "Water transport distance (km)",
         "description": "Water transport distance in kilometers",
         "type": "number",
