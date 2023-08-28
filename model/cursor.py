@@ -112,3 +112,17 @@ def cast_to_type(value, type):
         raise ValueError("Value not casted to declared type: " + value)
     return v
 
+def delete_dataset_entry(db: Session, id:int):
+    delete_post = db.query(table.Catalog).filter(table.Catalog.id == id)
+    try:
+        exists = get_catalog_entry(db, id)
+        if not exists:
+            return { "code": 404,"message": "Dataset not found" }
+        else: 
+            delete_post = db.query(table.Catalog).filter(table.Catalog.id == id)
+            delete_post.delete(synchronize_session=False)
+            db.commit()
+            return { "code": 200,"message": f"Dataset {id} deleted" }
+             
+    except Exception as e:
+        return { "code": 500,"message": e }

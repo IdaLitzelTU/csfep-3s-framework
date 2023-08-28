@@ -119,3 +119,9 @@ def put_dataset(body: schema.CatalogCreate, db: Session = Depends(get_db)):
 def get_dataset_by_id(id: int, db: Session = Depends(get_db)):
     logger.info(f"Retrieved dataset {id}")
     return cursor.get_catalog_entry(db=db, id=id)
+
+@app.delete("/dataset/{id}")
+def delete_dataset_by_id(id: int, db: Session = Depends(get_db)):
+    logger.info(f"Delete dataset: {id}")
+    body = cursor.delete_dataset_entry(db=db, id=id)
+    return body
