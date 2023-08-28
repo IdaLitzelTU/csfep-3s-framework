@@ -15,9 +15,9 @@ meta = {"version": "2", "by": "Galina Churkina", "contact": "some.name@mail.com"
 params = {
     "cf_log": 0.5,
     "c2co2": 3.67,
-    # TODO: move transport to BD?
-    "k_truck": {"min": 0.00017398, "best": 0.00036024, "max": 0.00055731}, # should it be * 1000 since it's kilos not tonns?
-    "k_sea": {"min": 0.000013155, "best": 0.000013155, "max": 0.000013155}, # should it be * 1000 since it's kilos not tonns?
+    # TODO: move transport to DB?
+    "k_truck": {"min": 0.17398, "best": 0.36024, "max": 0.55731},
+    "k_sea": {"min": 0.013155, "best": 0.013155, "max": 0.013155},
     "c_material": {x["id"]: {"min": x["min"], "best": x["best"], "max": x["max"], "istimber": x["istimber"]} for x in materials},
     "c_acc_forest": {x["id"]: {"min": x["min"], "best": x["best"], "max": x["max"]} for x in forests},
 }
@@ -279,24 +279,24 @@ def run(data, params, *args, **kwargs):
         )
         # convert mass to tonn
         c_emitted_transport_mineral = csfep_3s.emitted_transporting(
-            mineral_based_building_mass / 1000,
+            mineral_based_building_mass,
             data["mineral_based_transport_land"],
             params["k_truck"][i],
             **params,
         ) + csfep_3s.emitted_transporting(
-            mineral_based_building_mass / 1000,
+            mineral_based_building_mass ,
             data["mineral_based_transport_water"],
             params["k_sea"][i],
             **params,
         )
 
         c_emitted_transport_timber = csfep_3s.emitted_transporting(
-            timber_building_mass / 1000,
+            timber_building_mass,
             data["timber_transport_land"],
             params["k_truck"][i],
             **params,
         ) + csfep_3s.emitted_transporting(
-            timber_building_mass / 1000,
+            timber_building_mass,
             data["timber_transport_water"],
             params["k_sea"][i],
             **params,
