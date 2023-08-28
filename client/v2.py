@@ -302,11 +302,11 @@ def run(data, params, *args, **kwargs):
             **params,
         )
         #carbon substitution
-        scoped_data["SC Production"] = round(c_emitted_mineral / 1000, round_decimal)
-        scoped_data["SC Transport"] = round(c_emitted_transport_mineral, round_decimal)
+        scoped_data["SC Production"] = round(c_emitted_mineral, round_decimal)
+        scoped_data["SC Transport"] = round(c_emitted_transport_mineral / 1000, round_decimal)
         
         scoped_data["MT Production"] = round(c_emitted_timber / 1000, round_decimal)
-        scoped_data["MT Transport"] = round(c_emitted_transport_timber, round_decimal)
+        scoped_data["MT Transport"] = round(c_emitted_transport_timber / 1000, round_decimal)
         
         
         #carbon sink
@@ -321,4 +321,5 @@ def run(data, params, *args, **kwargs):
             scoped_data, params["c2co2"]
         )
     output["assumptions"] = assumptions
+    print('--output',output)
     return output

@@ -78,7 +78,7 @@ def emitted_transporting(mass, distance, coeff, *, c2co2,**kwargs):
         logger.info(
             f"Carbon emissions during transport stage of construction materials [tC] assuming all emissions are CO2: {c_emitted}"
         )
-        return c_emitted
+        return c_emitted / 1000
     except Exception as e:
         logger.exception(e)
 
