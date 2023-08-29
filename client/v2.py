@@ -321,5 +321,4 @@ def run(data, params, *args, **kwargs):
             scoped_data, params["c2co2"]
         )
     output["assumptions"] = assumptions
-    print('--output',output)
     return output
