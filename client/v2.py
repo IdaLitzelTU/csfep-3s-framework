@@ -302,7 +302,7 @@ def run(data, params, *args, **kwargs):
             **params,
         )
         #carbon substitution
-        scoped_data["SC Production"] = round(c_emitted_mineral, round_decimal)
+        scoped_data["SC Production"] = round(c_emitted_mineral / 1000, round_decimal)
         scoped_data["SC Transport"] = round(c_emitted_transport_mineral / 1000, round_decimal)
         
         scoped_data["MT Production"] = round(c_emitted_timber / 1000, round_decimal)
