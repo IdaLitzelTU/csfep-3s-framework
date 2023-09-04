@@ -74,11 +74,12 @@ def emitted_manufacturing(scenario, materials, *, c_material, c2co2, **kwargs):
 
 def emitted_transporting(mass, distance, coeff, *, c2co2,**kwargs):
     try:
-        c_emitted = mass * distance * coeff / c2co2
+        # m -> t * Km * (kg * C02) / t*km / c02/c
+        c_emitted = ((mass/1000) * distance * coeff) / c2co2
         logger.info(
             f"Carbon emissions during transport stage of construction materials [tC] assuming all emissions are CO2: {c_emitted}"
         )
-        return c_emitted
+        return c_emitted 
     except Exception as e:
         logger.exception(e)
 
