@@ -26,7 +26,6 @@ assumptions = {
     "Transport emmission carbon benefit": "is included in Substitution",
     "Total carbon benefit": "is a sum of Sink and Substitution",
 }
-
 input = [
     {
         "name": "a_harvest",

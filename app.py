@@ -13,7 +13,7 @@ Base.metadata.create_all(bind=engine)
 # TODO: add token authentication
 
 # setup loggers
-logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
+# logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 
@@ -65,7 +65,6 @@ def get_model_information(version: str):
             Version specified is {version}.
             Only following version are available {list(model_export.keys())}""",
         }
-
     return {"message": "OK", "results": response}
 
 
@@ -74,10 +73,10 @@ def run_model_version(version: str, body: str):
     """Runs the specified model version and returns the output of the model"""
     logger.info(f"Running model {version} with {body}")
     model = model_export.get(version)
-    
+
     if model:
         model_executable = model.get("exec")
-        
+
         results = model_executable(
             data=cursor.cast_dict(body), params=model.get("params")
         )

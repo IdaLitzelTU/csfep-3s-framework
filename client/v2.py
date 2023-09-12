@@ -18,8 +18,18 @@ params = {
     # TODO: move transport to DB?
     "k_truck": {"min": 0.17398, "best": 0.36024, "max": 0.55731},
     "k_sea": {"min": 0.013155, "best": 0.013155, "max": 0.013155},
-    "c_material": {x["id"]: {"min": x["min"], "best": x["best"], "max": x["max"], "istimber": x["istimber"]} for x in materials},
-    "c_acc_forest": {x["id"]: {"min": x["min"], "best": x["best"], "max": x["max"]} for x in forests},
+    "c_material": {
+        x["id"]: {
+            "min": x["min"],
+            "best": x["best"],
+            "max": x["max"],
+            "istimber": x["istimber"],
+        }
+        for x in materials
+    },
+    "c_acc_forest": {
+        x["id"]: {"min": x["min"], "best": x["best"], "max": x["max"]} for x in forests
+    },
 }
 
 assumptions = {
@@ -29,37 +39,52 @@ assumptions = {
     "Total carbon benefit": "is a sum of Sink and Substitution",
     "V2": "This model allows for more detailed material selection of both buildings",
 }
-
 input = [
     {
         "name": "building_floor_area",
         "category": "Building",
-        "display_name": "Total floor area (m2)",
-        "description": "The floor area in squared meters",
+        "display_name": "Total floor area",
+        "description": "The floor area",
         "type": "number",
         "default": "None",
+        "unit": "m2",
     },
-    # {
-    #     "name": "building_number",
-    #     "category": "Building",
-    #     "display_name": "Number of buildings (units)",
-    #     "description": "Number of buildings built",
-    #     "type": "number",
-    #     "default": "None",
-    # },
     {
         "name": "building_lifespan",
         "category": "Building",
-        "display_name": "Expected life span of the building (years)",
-        "description": "The expected life span of the building in years",
+        "display_name": "Expected life span of the building",
+        "description": "The expected life span of the building",
         "type": "number",
         "default": "None",
+        "unit": "years",
     },
     {
-        "name": "mineral_based_materials",
-        "category": "Mineral based building materials",
+        "name": "conventional_mineral_materials",
+        "category": "Conventional building",
         "display_name": "Select materials",
-        "description": "Materials used in the building",
+        "description": "Mineral-based materials used in the building",
+        "type": "group",
+        "default": "None",
+        "fields": json.dumps(
+            [
+                {
+                    "name": x["id"],
+                    "display_name": x["material"],
+                    "description": f"{x['material']} quantity",
+                    "type": "number",
+                    "default": "None",
+                    "unit": "kg",
+                }
+                for x in materials
+                if not x["istimber"]
+            ]
+        ),
+    },
+    {
+        "name": "conventional_biomass_materials",
+        "category": "Conventional building",
+        "display_name": "Select materials",
+        "description": "Biomass-based materials used in the building",
         "type": "group",
         "default": "None",
         "fields": json.dumps(
@@ -72,30 +97,46 @@ input = [
                     "default": "None",
                 }
                 for x in materials
+                if x["istimber"]
             ]
         ),
     },
     {
-        "name": "mineral_based_transport_land",
-        "category": "Mineral based building transport",
-        "display_name": "Land transport distance (km)",
-        "description": "Land transport distance in kilometers",
-        "type": "number",
+        "name": "c_emitted_transport_conventional",
+        "category": "Conventional materials transport",
+        "display_name": "Carbon emitted transporting",
+        "description": "Carbon emitted transporting materials for conventional building",
+        "type": "modal",
         "default": "None",
+        "unit": "km",
     },
     {
-        "name": "mineral_based_transport_water",
-        "category": "Mineral based building transport",
-        "display_name": "Water transport distance (km)",
-        "description": "Water transport distance in kilometers",
-        "type": "number",
-        "default": "None",
-    },
-    {
-        "name": "timber_materials",
-        "category": "Biomass based / Timber building materials",
+        "name": "timber_mineral_materials",
+        "category": "Timber building",
         "display_name": "Select materials",
-        "description": "Materials used in the building",
+        "description": "Mineral materials used in the building",
+        "type": "group",
+        "default": "None",
+        "fields": json.dumps(
+            [
+                {
+                    "name": x["id"],
+                    "display_name": x["material"],
+                    "description": f"{x['material']} quantity",
+                    "type": "number",
+                    "default": "None",
+                    "unit": "kg",
+                }
+                for x in materials
+                if not x["istimber"]
+            ]
+        ),
+    },
+    {
+        "name": "timber_biomass_materials",
+        "category": "Timber building",
+        "display_name": "Select materials",
+        "description": "Biomass-based materials used in the building",
         "type": "group",
         "default": "None",
         "fields": json.dumps(
@@ -108,24 +149,18 @@ input = [
                     "default": "None",
                 }
                 for x in materials
+                if x["istimber"]
             ]
         ),
     },
     {
-        "name": "timber_transport_land",
-        "category": "Biomass based / Timber building transport",
-        "display_name": "Land transport distance (km)",
-        "description": "Land transport distance in kilometers",
-        "type": "number",
+        "name": "c_emitted_transport_timber",
+        "category": "Timber building transport",
+        "display_name": "Carbon emitted transporting",
+        "description": "Carbon emitted transporting materials for timber building",
+        "type": "modal",
         "default": "None",
-    },
-    {
-        "name": "timber_transport_water",
-        "category": "Biomass based / Timber building transport",
-        "display_name": "Water transport distance (km)",
-        "description": "Water transport distance in kilometers",
-        "type": "number",
-        "default": "None",
+        "unit": "km",
     },
     {
         "name": "forest_type",
@@ -150,26 +185,29 @@ input = [
     {
         "name": "forest_c_acc_rate",
         "category": "Forest",
-        "display_name": "Carbon accumulation rate (tC/ha/y)",
+        "display_name": "Carbon accumulation rate",
         "description": "Carbon accumulation rate (min, best_guess, max) (comma separated) (leave blank for default value based on the forest type selected)",
         "type": "array",
         "default": "None",
+        "unit": "tC/ha/y",
     },
     {
         "name": "forest_harvest_area",
         "category": "Forest",
-        "display_name": "Harvested area (ha)",
-        "description": "An area of forest harvested in hectares",
+        "display_name": "Harvested area",
+        "description": "An area of forest harvested",
         "type": "number",
         "default": "None",
+        "unit": "ha",
     },
     {
         "name": "forest_harvest_intensity",
         "category": "Forest",
-        "display_name": "Harvest intensity (%)",
+        "display_name": "Harvesting intensity",
         "description": "An area of forest affected by harvest",
         "type": "number",
         "default": "None",
+        "unit": "%",
     },
     {
         "name": "forest_biomass_left",
@@ -178,22 +216,25 @@ input = [
         "description": "Proportion of harvested biomass left on site to provide nutrients for regeneration",
         "type": "number",
         "default": "10",
+        "unit": "%",
     },
     {
         "name": "manufacturing_prefabricated_used",
         "category": "Manufacturing",
-        "display_name": "Prefabricated material used (%)",
+        "display_name": "Prefabricated material used",
         "description": "Proportion of prefabricated material used in construction",
         "type": "number",
         "default": "100",
+        "unit": "%",
     },
     {
         "name": "manufacturing_wood_used",
         "category": "Manufacturing",
-        "display_name": "Roundwood used (%)",
+        "display_name": "Roundwood used",
         "description": "Proportion of roundwood used for material production",
         "type": "number",
         "default": "50",
+        "unit": "%",
     },
 ]
 
@@ -202,43 +243,48 @@ def run(data, params, *args, **kwargs):
     """
     Make sure you have common data and output for each version of the model
     """
-
     # Calculate carbon storage in timber building and
     # carbon needed to be extracted from forest or demand for carbon
-   
+
     # t C stored in materials before construction
-    c_stored_in_building = round(csfep_3s.c_stored_in_building(
-        data["timber_materials"], **data, **params
-    ), 0)  # kgC
+    # TODO: If we allow for biomass materials in conventional building,
+    # should we withdraw the c_stored_in_conventional_building from this value?
+    c_stored_in_building = round(
+        csfep_3s.c_stored_in_building(
+            data["timber_biomass_materials"], **data, **params
+        ),
+        0,
+    )  # kgC
 
-    mineral_based_building_mass = csfep_3s.total_mass(
-        data["mineral_based_materials"]
-    )  # KG
-    timber_building_mass = csfep_3s.total_mass(
-        data["timber_materials"]
-    )  # KG
-    c_stored_in_materials = c_stored_in_building / (data["manufacturing_prefabricated_used"] * 0.01)
-    
+    c_stored_in_materials = c_stored_in_building / (
+        data["manufacturing_prefabricated_used"] * 0.01
+    )
+
     # kgC stored in roundwood brought to the plant
-    c_stored_in_roundwood = c_stored_in_materials / (data["manufacturing_wood_used"] * 0.01)
-    
+    c_stored_in_roundwood = c_stored_in_materials / (
+        data["manufacturing_wood_used"] * 0.01
+    )
 
-    c_needed_for_building = c_stored_in_roundwood / (1 - (data["forest_biomass_left"] * 0.01))  # kgC stored in harested trees
-    
+    c_needed_for_building = c_stored_in_roundwood / (
+        1 - (data["forest_biomass_left"] * 0.01)
+    )  # kgC stored in harested trees
+
     # FIXME: biomass left is 1 - harvest intensity?
     # kgC stored in scrap wood from material manufacturing and construction
-    c_harvest_2_scrap = c_stored_in_roundwood - c_stored_in_building # number_of_buildings * c_stored_in_building
-    c_harvest_2_forest = c_needed_for_building * data["forest_biomass_left"] * 0.01 # kgC returuned to forest
+    # number_of_buildings * c_stored_in_building
+    c_harvest_2_scrap = c_stored_in_roundwood - c_stored_in_building
+    # kgC returuned to forest
+    c_harvest_2_forest = c_needed_for_building * data["forest_biomass_left"] * 0.01
 
     # TODO Calculate time to replanish carbon debt in a forest
     years_to_regrow_forest = csfep_3s.years_to_accumulate(
         c_needed_for_building, "best", **data, **params
-    ) 
+    )
 
     constants = {
-        "Accumulated": 0, # c_accum_forest
+        "Accumulated": 0,  # c_accum_forest
         "Buildings floor area m2": data["building_floor_area"],
-        "Number of Buildings": 1, #     number_of_buildings = data["building_number"]
+        "Number of Buildings": 1,  # number_of_buildings = data["building_number"]
         "Harvested": round(c_needed_for_building / 1000, 0),
         "Years to Regrow Forest": round(years_to_regrow_forest, 0),
     }
@@ -261,57 +307,45 @@ def run(data, params, *args, **kwargs):
 
     scenario_number = 1
     round_decimal = 2
-    for i in ["min", "best", "max"]:
-        ## define mineral building materials
-        ## define timber building material
+    for pos, i in enumerate(["min", "best", "max"]):
+        # define mineral building materials
+        # define timber building material
         scoped_data = {}
         scenario_name = f"scenario_{scenario_number}"
         scenario_number = scenario_number + 1
 
         c_recovered_forest = csfep_3s.forest_recov(i, **data, **params)
 
-        c_emitted_mineral = csfep_3s.emitted_manufacturing(
-            i, data["mineral_based_materials"], **params
+        c_emitted_conventional = csfep_3s.emitted_manufacturing(
+            i, data["conventional_biomass_materials"], **params
+        ) + csfep_3s.emitted_manufacturing(
+            i, data["conventional_mineral_materials"], **params
         )
-
         c_emitted_timber = csfep_3s.emitted_manufacturing(
-            i, data["timber_materials"], **params
-        )
-        # convert mass to tonn
-        c_emitted_transport_mineral = csfep_3s.emitted_transporting(
-            mineral_based_building_mass,
-            data["mineral_based_transport_land"],
-            params["k_truck"][i],
-            **params,
-        ) + csfep_3s.emitted_transporting(
-            mineral_based_building_mass ,
-            data["mineral_based_transport_water"],
-            params["k_sea"][i],
-            **params,
+            i, data["timber_biomass_materials"], **params
+        ) + csfep_3s.emitted_manufacturing(
+            i, data["timber_mineral_materials"], **params
         )
 
-        c_emitted_transport_timber = csfep_3s.emitted_transporting(
-            timber_building_mass,
-            data["timber_transport_land"],
-            params["k_truck"][i],
-            **params,
-        ) + csfep_3s.emitted_transporting(
-            timber_building_mass,
-            data["timber_transport_water"],
-            params["k_sea"][i],
-            **params,
+        # carbon substitution
+        scoped_data["SC Production"] = round(
+            c_emitted_conventional / 1000, round_decimal
         )
-        #carbon substitution
-        scoped_data["SC Production"] = round(c_emitted_mineral / 1000, round_decimal)
-        scoped_data["SC Transport"] = round(c_emitted_transport_mineral / 1000, round_decimal)
-        
+        scoped_data["SC Transport"] = round(
+            data["c_emitted_transport_conventional"][pos] / 1000, round_decimal
+        )
+
         scoped_data["MT Production"] = round(c_emitted_timber / 1000, round_decimal)
-        scoped_data["MT Transport"] = round(c_emitted_transport_timber / 1000, round_decimal)
-        
-        
-        #carbon sink
-        scoped_data["Carbon Recovered during Building Lifetime"] = round(c_recovered_forest / 1000, round_decimal)
-        #carbon storage
+        # [0,0,0]
+        scoped_data["MT Transport"] = round(
+            data["c_emitted_transport_timber"][pos] / 1000, round_decimal
+        )
+
+        # carbon sink
+        scoped_data["Carbon Recovered during Building Lifetime"] = round(
+            c_recovered_forest / 1000, round_decimal
+        )
+        # carbon storage
         scoped_data["C2Scrap"] = round(c_harvest_2_scrap / 1000, round_decimal)
         scoped_data["C2Forest"] = round(c_harvest_2_forest / 1000, round_decimal)
         scoped_data["C2Buildings"] = round(c_stored_in_building / 1000, round_decimal)

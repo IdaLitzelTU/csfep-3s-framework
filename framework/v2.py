@@ -19,7 +19,7 @@ def convert_to_tco2(object, coefficient, obsolve=[]):
         elif isinstance(value,dict):
             out[key] = convert_to_tco2(value, coefficient, obsolve)
         else:
-            out[key] = value    
+            out[key] = value
     return out
 
 
@@ -32,14 +32,14 @@ def c_stored_in_building(materials, *, cf_log, c_material, **kwargs):
     This function calculates amount of carbon stored in a building and
     amount of wood to be harvested for this building [t C]
     """
-    
+
     try:
         total = 0
         for id, value in materials.items(): # materials is { concrete: value }
             if c_material.get(id, {"istimber": False}).get("istimber"):
                 total = total + value
         total = total * cf_log
-        logger.info(f"Building carbon stored: {total} kgC") 
+        logger.info(f"Building carbon stored: {total} kgC")
         return total
     except Exception as e:
         logger.exception(e)
@@ -63,7 +63,7 @@ def emitted_manufacturing(scenario, materials, *, c_material, c2co2, **kwargs):
         total = 0
         for key, mass in materials.items():
             co2_in_material = c_material[key]  # co2/kg
-            # kgco2/kg * kg = kgco2 
+            # kgco2/kg * kg = kgco2
             # before: m2 * tCo2 / m2 => tCo2 now: kg, kgCo2/kg -> kg * kgCo2 / kg => kgCo2 / 1000 -> tCo2
             total = total + (co2_in_material[scenario] * mass)
         logger.info(f"Building carbon stored: {total} kgC")
@@ -72,14 +72,14 @@ def emitted_manufacturing(scenario, materials, *, c_material, c2co2, **kwargs):
         logger.exception(e)
 
 
-def emitted_transporting(mass, distance, coeff, *, c2co2,**kwargs):
+def emitted_transporting(mass, distance, coeff, *, c2co2, **kwargs):
     try:
         # m -> t * Km * (kg * C02) / t*km / c02/c
         c_emitted = ((mass/1000) * distance * coeff) / c2co2
         logger.info(
             f"Carbon emissions during transport stage of construction materials [tC] assuming all emissions are CO2: {c_emitted}"
         )
-        return c_emitted 
+        return c_emitted
     except Exception as e:
         logger.exception(e)
 
@@ -96,7 +96,7 @@ def wood_demand(carbon_bld, *, wood_used, material_used, **kwargs):
 
 
 def years_to_accumulate(
-    carbon_harv, #should be in tonnes?
+    carbon_harv,  # should be in tonnes?
     scenario,
     *,
     forest_harvest_area,
@@ -110,7 +110,7 @@ def years_to_accumulate(
     """
     try:
         c_acc_rate = get_scenario_c_acc_rate(scenario, **kwargs)
-        #change harvest intensity to fraction
+        # change harvest intensity to fraction
         yr = carbon_harv / (c_acc_rate * forest_harvest_area * (forest_harvest_intensity * 0.01))
         logger.info(
             f"Number of years needed to accumulate harvested carbon using average carbon accumulation rate of a forest from the Cook-Paton database: {yr}"
@@ -118,6 +118,7 @@ def years_to_accumulate(
         return yr
     except Exception as e:
         logger.exception(e)
+        return 0
 
 
 def get_scenario_c_acc_rate(scenario, *, forest_c_acc_rate, forest_type, c_acc_forest, **kwargs):
@@ -127,7 +128,7 @@ def get_scenario_c_acc_rate(scenario, *, forest_c_acc_rate, forest_type, c_acc_f
         "max": 2
     }
 
-    if forest_c_acc_rate:
+    if forest_c_acc_rate and forest_c_acc_rate[0] != 0:
         c_acc_rate = forest_c_acc_rate[index[scenario]]
     else:
         c_acc_rate = c_acc_forest[forest_type][scenario] # tCO2/ha/yt
@@ -145,8 +146,8 @@ def forest_recov(
     """
     This function calculates amount of carbon recovered in the forest during the life time
     of a building
-    """    
-    try: 
+    """
+    try:
         c_acc_rate = get_scenario_c_acc_rate(scenario, **kwargs)
         # tCO2/ha/y * ha = tCO2/y
         cr = (

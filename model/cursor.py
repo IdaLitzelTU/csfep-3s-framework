@@ -48,7 +48,10 @@ def put_dataset_object(db: Session, body: schema.CatalogCreate):
     for var in body.data:
         # create dataset
         dataset = table.Dataset(
-            catalog_id=catalog.id, key=var["name"], value=var["value"], inputtype=var["type"]
+            catalog_id=catalog.id,
+            key=var["name"],
+            value=var["value"],
+            inputtype=var["type"],
         )
         db.add(dataset)
 
@@ -63,7 +66,7 @@ def cast_dict(data):
     for obj in json.loads(data):
         key = obj["name"]
         type = obj["type"]
-        value = cast_to_type(obj["value"],type)
+        value = cast_to_type(obj["value"], type)
         out[key] = value
     return out
 
@@ -73,9 +76,7 @@ def get_dataset_data_object(db: Session, id: int):
     out = []
 
     for entry in data:
-        out.append(
-            {"name": entry.key, "value": entry.value, "type": entry.inputtype}
-        )
+        out.append({"name": entry.key, "value": entry.value, "type": entry.inputtype})
     return json.dumps(out)
 
 
@@ -85,6 +86,8 @@ def cast_to_array(value):
     """
     arr = json.loads(value)
     arr = [cast_to_type(x, "number") for x in arr]
+    if len(arr) == 0:
+        return [0, 0, 0]
     return arr
 
 
@@ -98,12 +101,26 @@ def cast_to_dict(value):
     return dic
 
 
+def cast_to_array_of_dicts(value):
+    arr = []
+    for d in json.loads(value):
+        for key, val in d.items():
+            try:
+                d[key] = json.loads(val)
+            except (ValueError, TypeError):
+                d[key] = val
+        arr.append(d)
+    return arr
+
+
 def cast_to_type(value, type):
     dtypes = {
         "number": float,
         "array": cast_to_array,
         "group": cast_to_dict,
         "select": str,
+        "staged_input": cast_to_array_of_dicts,
+        "modal": cast_to_array
     }
     parser_func = dtypes[type]
     try:
@@ -112,17 +129,18 @@ def cast_to_type(value, type):
         raise ValueError("Value not casted to declared type: " + value)
     return v
 
-def delete_dataset_entry(db: Session, id:int):
+
+def delete_dataset_entry(db: Session, id: int):
     delete_post = db.query(table.Catalog).filter(table.Catalog.id == id)
     try:
         exists = get_catalog_entry(db, id)
         if not exists:
-            return { "code": 404,"message": "Dataset not found" }
-        else: 
+            return {"code": 404, "message": "Dataset not found"}
+        else:
             delete_post = db.query(table.Catalog).filter(table.Catalog.id == id)
             delete_post.delete(synchronize_session=False)
             db.commit()
-            return { "code": 200,"message": f"Dataset {id} deleted" }
-             
+            return {"code": 200, "message": f"Dataset {id} deleted"}
+
     except Exception as e:
-        return { "code": 500,"message": e }
+        return {"code": 500, "message": e}
