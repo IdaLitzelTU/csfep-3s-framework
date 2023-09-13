@@ -120,7 +120,8 @@ def cast_to_type(value, type):
         "group": cast_to_dict,
         "select": str,
         "staged_input": cast_to_array_of_dicts,
-        "modal": cast_to_array
+        "modal": cast_to_array,
+        "populate": cast_to_array
     }
     parser_func = dtypes[type]
     try:

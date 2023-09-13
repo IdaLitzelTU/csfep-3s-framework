@@ -14,9 +14,9 @@ if logger.hasHandlers():
 def convert_to_tco2(object, coefficient, obsolve=[]):
     out = {}
     for key, value in object.items():
-        if key not in obsolve and not isinstance(value,dict):
+        if key not in obsolve and not isinstance(value, dict):
             out[key] = value * coefficient
-        elif isinstance(value,dict):
+        elif isinstance(value, dict):
             out[key] = convert_to_tco2(value, coefficient, obsolve)
         else:
             out[key] = value
@@ -35,7 +35,7 @@ def c_stored_in_building(materials, *, cf_log, c_material, **kwargs):
 
     try:
         total = 0
-        for id, value in materials.items(): # materials is { concrete: value }
+        for id, value in materials.items():  # materials is { concrete: value }
             if c_material.get(id, {"istimber": False}).get("istimber"):
                 total = total + value
         total = total * cf_log
@@ -75,7 +75,7 @@ def emitted_manufacturing(scenario, materials, *, c_material, c2co2, **kwargs):
 def emitted_transporting(mass, distance, coeff, *, c2co2, **kwargs):
     try:
         # m -> t * Km * (kg * C02) / t*km / c02/c
-        c_emitted = ((mass/1000) * distance * coeff) / c2co2
+        c_emitted = ((mass / 1000) * distance * coeff) / c2co2
         logger.info(
             f"Carbon emissions during transport stage of construction materials [tC] assuming all emissions are CO2: {c_emitted}"
         )
@@ -111,7 +111,9 @@ def years_to_accumulate(
     try:
         c_acc_rate = get_scenario_c_acc_rate(scenario, **kwargs)
         # change harvest intensity to fraction
-        yr = carbon_harv / (c_acc_rate * forest_harvest_area * (forest_harvest_intensity * 0.01))
+        yr = carbon_harv / (
+            c_acc_rate * forest_harvest_area * (forest_harvest_intensity * 0.01)
+        )
         logger.info(
             f"Number of years needed to accumulate harvested carbon using average carbon accumulation rate of a forest from the Cook-Paton database: {yr}"
         )
@@ -121,17 +123,11 @@ def years_to_accumulate(
         return 0
 
 
-def get_scenario_c_acc_rate(scenario, *, forest_c_acc_rate, forest_type, c_acc_forest, **kwargs):
-    index = {
-        "min": 0,
-        "best": 1,
-        "max": 2
-    }
+def get_scenario_c_acc_rate(scenario, *, forest_c_acc_rate, **kwargs):
+    index = {"min": 0, "best": 1, "max": 2}
 
     if forest_c_acc_rate and forest_c_acc_rate[0] != 0:
         c_acc_rate = forest_c_acc_rate[index[scenario]]
-    else:
-        c_acc_rate = c_acc_forest[forest_type][scenario] # tCO2/ha/yt
     return c_acc_rate
 
 

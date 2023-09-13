@@ -163,33 +163,32 @@ input = [
         "unit": "km",
     },
     {
-        "name": "forest_type",
+        "name": "forest_c_acc_rate",
         "category": "Forest",
-        "display_name": "Select forest type",
-        "description": "Forest type",
-        "type": "select",
+        "display_name": "Carbon accumulation rate",
+        "description": "Carbon accumulation rate by forest type",
+        "type": "populate",
         "default": "None",
+        "unit": "kgC/ha/y",
         "options": json.dumps(
             [
                 *[
                     {
                         "name": x["id"],
                         "display_name": x["forest"],
+                        "values": [x["min"], x["best"], x["max"]],
                     }
                     for x in forests
                 ],
-                *[{"name": "other", "display_name": "Other (input number)"}],
+                *[
+                    {
+                        "name": "other",
+                        "display_name": "Other (input number)",
+                        "values": "",
+                    }
+                ],
             ]
         ),
-    },
-    {
-        "name": "forest_c_acc_rate",
-        "category": "Forest",
-        "display_name": "Carbon accumulation rate",
-        "description": "Carbon accumulation rate (min, best_guess, max) (comma separated) (leave blank for default value based on the forest type selected)",
-        "type": "array",
-        "default": "None",
-        "unit": "tC/ha/y",
     },
     {
         "name": "forest_harvest_area",
