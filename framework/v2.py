@@ -98,9 +98,6 @@ def wood_demand(carbon_bld, *, wood_used, material_used, **kwargs):
 def years_to_accumulate(
     carbon_harv,  # should be in tonnes?
     scenario,
-    *,
-    forest_harvest_area,
-    forest_harvest_intensity,
     **kwargs,
 ):
     """
@@ -109,11 +106,8 @@ def years_to_accumulate(
     database
     """
     try:
-        c_acc_rate = get_scenario_c_acc_rate(scenario, **kwargs)
         # change harvest intensity to fraction
-        yr = carbon_harv / (
-            c_acc_rate * forest_harvest_area * (forest_harvest_intensity * 0.01)
-        )
+        yr = carbon_harv / carbon_accumulated_in_forest_per_year(scenario, **kwargs)
         logger.info(
             f"Number of years needed to accumulate harvested carbon using average carbon accumulation rate of a forest from the Cook-Paton database: {yr}"
         )
@@ -123,19 +117,31 @@ def years_to_accumulate(
         return 0
 
 
-def get_scenario_c_acc_rate(scenario, *, forest_c_acc_rate, **kwargs):
+def get_scenario_index(scenario, *args, **kwargs):
     index = {"min": 0, "best": 1, "max": 2}
+    return index[scenario]
 
-    if forest_c_acc_rate and forest_c_acc_rate[0] != 0:
-        c_acc_rate = forest_c_acc_rate[index[scenario]]
-    return c_acc_rate
+
+def carbon_accumulated_in_forest_per_year(
+    scenario,
+    *,
+    forest_c_acc_rate,
+    forest_harvest_area,
+    forest_harvest_intensity,
+    **kwargs,
+):
+    try:
+        c_acc_rate = forest_c_acc_rate[get_scenario_index(scenario)]
+        c_acc = c_acc_rate * forest_harvest_area * (forest_harvest_intensity * 0.01)
+        return c_acc
+    except Exception as e:
+        logger.exception(e)
+        return 0
 
 
 def forest_recov(
     scenario,
     *,
-    forest_harvest_area,
-    forest_harvest_intensity,
     building_lifespan,
     **kwargs,
 ):
@@ -144,12 +150,9 @@ def forest_recov(
     of a building
     """
     try:
-        c_acc_rate = get_scenario_c_acc_rate(scenario, **kwargs)
         # tCO2/ha/y * ha = tCO2/y
         cr = (
-            forest_harvest_area
-            * (forest_harvest_intensity * 0.01)
-            * c_acc_rate
+            carbon_accumulated_in_forest_per_year(scenario, **kwargs)
             * building_lifespan
         )
         logger.info(
