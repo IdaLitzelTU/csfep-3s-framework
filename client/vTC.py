@@ -42,8 +42,7 @@ assumptions = {
     "Step name": "describes where your materials were moved e.g from forest to sawmill",
     "Mode of transport": "defines the way materials were transported in this step",
     "Mass in step": "is the mass of the materials transported in the current step",
-    "Distance in step": "is distance materials travelling using the transport in step"
-
+    "Distance in step": "is distance materials travelling using the transport in step",
 }
 
 input = [
