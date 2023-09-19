@@ -48,6 +48,8 @@ input = [
         "type": "number",
         "default": "None",
         "unit": "m2",
+        "min": 0.1,
+        "max": 100000,
     },
     {
         "name": "building_lifespan",
@@ -57,6 +59,8 @@ input = [
         "type": "number",
         "default": "None",
         "unit": "years",
+        "min": 1,
+        "max": 10000,
     },
     {
         "name": "conventional_mineral_materials",
@@ -74,6 +78,8 @@ input = [
                     "type": "number",
                     "default": "None",
                     "unit": "kg",
+                    "min": 0.1,
+                    "max": 1000000,
                 }
                 for x in materials
                 if not x["istimber"]
@@ -95,6 +101,8 @@ input = [
                     "description": f"{x['material']} quantity (kg)",
                     "type": "number",
                     "default": "None",
+                    "min": 0.1,
+                    "max": 1000000,
                 }
                 for x in materials
                 if x["istimber"]
@@ -126,6 +134,8 @@ input = [
                     "type": "number",
                     "default": "None",
                     "unit": "kg",
+                    "min": 0.1,
+                    "max": 1000000,
                 }
                 for x in materials
                 if not x["istimber"]
@@ -147,6 +157,8 @@ input = [
                     "description": f"{x['material']} quantity (kg)",
                     "type": "number",
                     "default": "None",
+                    "min": 0.1,
+                    "max": 1000000,
                 }
                 for x in materials
                 if x["istimber"]
@@ -198,6 +210,8 @@ input = [
         "type": "number",
         "default": "None",
         "unit": "ha",
+        "min": 0.01,
+        "max": 1000000,
     },
     {
         "name": "forest_harvest_intensity",
@@ -207,6 +221,8 @@ input = [
         "type": "number",
         "default": "None",
         "unit": "%",
+        "min": 1,
+        "max": 100,
     },
     {
         "name": "forest_biomass_left",
@@ -216,6 +232,8 @@ input = [
         "type": "number",
         "default": "10",
         "unit": "%",
+        "min": 1,
+        "max": 100,
     },
     {
         "name": "manufacturing_prefabricated_used",
@@ -225,6 +243,8 @@ input = [
         "type": "number",
         "default": "100",
         "unit": "%",
+        "min": 1,
+        "max": 100,
     },
     {
         "name": "manufacturing_wood_used",
@@ -234,6 +254,8 @@ input = [
         "type": "number",
         "default": "50",
         "unit": "%",
+        "min": 1,
+        "max": 100,
     },
 ]
 
