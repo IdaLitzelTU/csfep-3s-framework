@@ -1,6 +1,6 @@
 from framework import v1 as csfep_3s
 
-meta = {"version": "1.0.1", "by": "Galina Churkina", "contact": "some.name@mail.com"}
+meta = {"version": "1", "by": "Galina Churkina", "contact": "some.name@mail.com"}
 
 params = {
     "cf_log": 0.5,

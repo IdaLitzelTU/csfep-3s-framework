@@ -1,6 +1,5 @@
 from framework import v2 as csfep_3s
 import json
-from fastapi import Depends
 from model import get_db, cursor
 
 db = next(get_db())
@@ -74,7 +73,7 @@ input = [
                 {
                     "name": x["id"],
                     "display_name": x["material"],
-                    "description": f"{x['material']} quantity",
+                    "description": f"{x['material']} mass",
                     "type": "number",
                     "default": "None",
                     "unit": "kg",
@@ -98,7 +97,7 @@ input = [
                 {
                     "name": x["id"],
                     "display_name": x["material"],
-                    "description": f"{x['material']} quantity (kg)",
+                    "description": f"{x['material']} mass",
                     "type": "number",
                     "default": "None",
                     "min": 0.1,
@@ -111,7 +110,7 @@ input = [
     },
     {
         "name": "c_emitted_transport_conventional",
-        "category": "Conventional materials transport",
+        "category": "Conventional building materials transport",
         "display_name": "Carbon emitted transporting",
         "description": "Carbon emitted transporting materials for conventional building",
         "type": "modal",
@@ -130,7 +129,7 @@ input = [
                 {
                     "name": x["id"],
                     "display_name": x["material"],
-                    "description": f"{x['material']} quantity",
+                    "description": f"{x['material']} mass",
                     "type": "number",
                     "default": "None",
                     "unit": "kg",
@@ -154,7 +153,7 @@ input = [
                 {
                     "name": x["id"],
                     "display_name": x["material"],
-                    "description": f"{x['material']} quantity (kg)",
+                    "description": f"{x['material']} mass",
                     "type": "number",
                     "default": "None",
                     "min": 0.1,
@@ -167,7 +166,7 @@ input = [
     },
     {
         "name": "c_emitted_transport_timber",
-        "category": "Timber building transport",
+        "category": "Timber building materials transport",
         "display_name": "Carbon emitted transporting",
         "description": "Carbon emitted transporting materials for timber building",
         "type": "modal",
@@ -227,7 +226,7 @@ input = [
     {
         "name": "forest_biomass_left",
         "category": "Forest",
-        "display_name": "Harvested biomass left on site (%)",
+        "display_name": "Harvested biomass left on site",
         "description": "Proportion of harvested biomass left on site to provide nutrients for regeneration",
         "type": "number",
         "default": "10",

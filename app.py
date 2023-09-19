@@ -13,7 +13,7 @@ Base.metadata.create_all(bind=engine)
 # TODO: add token authentication
 
 # setup loggers
-logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
+# logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 
@@ -118,6 +118,7 @@ def put_dataset(body: schema.CatalogCreate, db: Session = Depends(get_db)):
 def get_dataset_by_id(id: int, db: Session = Depends(get_db)):
     logger.info(f"Retrieved dataset {id}")
     return cursor.get_catalog_entry(db=db, id=id)
+
 
 @app.delete("/dataset/{id}")
 def delete_dataset_by_id(id: int, db: Session = Depends(get_db)):
