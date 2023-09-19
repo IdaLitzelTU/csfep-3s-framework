@@ -96,13 +96,17 @@ input = [
 
 
 def run(data, params, *args, **kwargs):
-    output = {"min": 0, "best": 0, "max": 0}
+    emmissions = {"min": 0, "best": 0, "max": 0}
 
+    output = {}
     for step in data.get("transport_stages"):
         for guess in ["min", "best", "max"]:
             coeff = step["transport_type"]
             coeff_value = params.get(coeff).get(guess)
-            output[guess] += csfep_3s.emitted_transporting(
+            emmissions[guess] += csfep_3s.emitted_transporting(
                 step["mass"], step["distance"], coeff_value, **params
             )
-    return list(output.values())
+    output["emmissions"] = emmissions
+    output["assumptions"] = assumptions
+
+    return output

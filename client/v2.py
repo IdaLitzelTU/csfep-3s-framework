@@ -108,7 +108,7 @@ input = [
         "description": "Carbon emitted transporting materials for conventional building",
         "type": "modal",
         "default": "None",
-        "unit": "km",
+        "unit": "kgC",
     },
     {
         "name": "timber_mineral_materials",
@@ -160,7 +160,7 @@ input = [
         "description": "Carbon emitted transporting materials for timber building",
         "type": "modal",
         "default": "None",
-        "unit": "km",
+        "unit": "kgC",
     },
     {
         "name": "forest_c_acc_rate",
