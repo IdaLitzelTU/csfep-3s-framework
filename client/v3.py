@@ -36,10 +36,11 @@ params = {
 
 assumptions = {
     "Timber scrap": "is included in Storage",
-    "Timber reintroduced to the forest": "is included in Storage",
+    "Timber reintroduced to the forest": "is assumed to be 0",
     "Transport emmission carbon benefit": "is included in Substitution",
     "Total carbon benefit": "is a sum of Sink and Substitution",
-    "V2": "This model allows for more detailed material selection of both buildings",
+    "V3": """This model allows for selection of a frame of the
+    building to calculate how many buildings can be built with harvested carbon""",
 }
 
 
@@ -148,7 +149,7 @@ input = [
     {
         "name": "timber_mineral_materials",
         "category": "Timber building frame",
-        "display_name": "Select materials",
+        "display_name": "Select mineral-based materials",
         "description": "Mineral materials used in the building",
         "type": "group",
         "default": "None",
@@ -170,7 +171,7 @@ input = [
     {
         "name": "timber_biomass_materials",
         "category": "Timber building frame",
-        "display_name": "Select materials",
+        "display_name": "Select biomass-based materials",
         "description": "Biomass-based materials used in the building",
         "type": "group",
         "default": "None",
@@ -200,7 +201,7 @@ input = [
     {
         "name": "conventional_mineral_materials",
         "category": "Conventional building frame",
-        "display_name": "Select materials",
+        "display_name": "Select mineral-based materials",
         "description": "Mineral-based materials used in the building",
         "type": "group",
         "default": "None",
@@ -222,7 +223,7 @@ input = [
     {
         "name": "conventional_biomass_materials",
         "category": "Conventional building frame",
-        "display_name": "Select materials",
+        "display_name": "Select biomass-based materials",
         "description": "Biomass-based materials used in the building",
         "type": "group",
         "default": "None",
