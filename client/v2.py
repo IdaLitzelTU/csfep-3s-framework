@@ -32,8 +32,8 @@ params = {
 }
 
 assumptions = {
-    "Timber scrap": "is included in Storage",
-    "Timber reintroduced to the forest": "is included in Storage",
+    "10%": "of harvested forest is assumed to be left on site",
+    "Storage": "Contains real storage (Building) as well as potential storage (Forest and Scrap)",
     "Transport emmission carbon benefit": "is included in Substitution",
     "Total carbon benefit": "is a sum of Sink and Substitution",
     "V2": "This model allows for more detailed material selection of both buildings",
@@ -224,17 +224,6 @@ input = [
         "max": 100,
     },
     {
-        "name": "forest_biomass_left",
-        "category": "Forest",
-        "display_name": "Harvested biomass left on site",
-        "description": "Proportion of harvested biomass left on site to provide nutrients for regeneration",
-        "type": "number",
-        "default": "10",
-        "unit": "%",
-        "min": 1,
-        "max": 100,
-    },
-    {
         "name": "manufacturing_prefabricated_used",
         "category": "Manufacturing",
         "display_name": "Prefabricated material used",
@@ -285,16 +274,14 @@ def run(data, params, *args, **kwargs):
         data["manufacturing_wood_used"] * 0.01
     )
 
-    c_needed_for_building = c_stored_in_roundwood / (
-        1 - (data["forest_biomass_left"] * 0.01)
-    )  # kgC stored in harested trees
+    c_needed_for_building = c_stored_in_roundwood / 0.9  # kgC stored in harested trees
 
     # FIXME: biomass left is 1 - harvest intensity?
     # kgC stored in scrap wood from material manufacturing and construction
     # number_of_buildings * c_stored_in_building
     c_harvest_2_scrap = c_stored_in_roundwood - c_stored_in_building
     # kgC returuned to forest
-    c_harvest_2_forest = c_needed_for_building * data["forest_biomass_left"] * 0.01
+    c_harvest_2_forest = c_needed_for_building * 0.9
 
     # TODO Calculate time to replanish carbon debt in a forest
     years_to_regrow_forest = csfep_3s.years_to_accumulate(

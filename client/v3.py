@@ -35,8 +35,8 @@ params = {
 }
 
 assumptions = {
-    "Timber scrap": "is included in Storage",
-    "Timber reintroduced to the forest": "is assumed to be 0",
+    "10%": "of harvested forest is assumed to be left on site",
+    "Storage": "Contains real storage (Building) as well as potential storage (Forest and Scrap)",
     "Transport emmission carbon benefit": "is included in Substitution",
     "Total carbon benefit": "is a sum of Sink and Substitution",
     "V3": """This model allows for selection of a frame of the
@@ -183,6 +183,7 @@ input = [
                     "description": f"{x['material']} mass",
                     "type": "number",
                     "default": "None",
+                    "unit": "kg",
                 }
                 for x in materials
                 if x["istimber"]
@@ -300,7 +301,7 @@ def run(data, params, *args, **kwargs):
         )
 
         # How many buildings can be built given carbon harvested?
-        number_of_building_possible = c_harvested // c_needed_for_building
+        number_of_building_possible = (c_harvested * 0.9) // c_needed_for_building
 
         # What is the total building area?
         total_building_area = (
@@ -311,7 +312,7 @@ def run(data, params, *args, **kwargs):
         total_c_in_building = number_of_building_possible * c_stored_in_building
 
         # Scrap/waste not used in production
-        c_in_scrap = c_harvested - total_c_in_building
+        c_in_scrap = (c_harvested * 0.9) - total_c_in_building
 
         c_emitted_conventional_manufacturing = (
             csfep_3s.emitted_manufacturing(
@@ -344,8 +345,9 @@ def run(data, params, *args, **kwargs):
         )
 
         scoped_data["c_accumulated"] = c_accumulated_in_forest
-        scoped_data["c_harvested"] = c_harvested
+        scoped_data["c_harvested"] = c_harvested * 0.9
         scoped_data["c_recovered"] = c_recovered_in_forest
+        scoped_data["c_forest"] = c_harvested * 0.1
         scoped_data["c_lost"] = c_in_scrap
         scoped_data["c_in_building"] = total_c_in_building
         scoped_data["years_to_regrow_forest"] = years_to_regrow_forest
