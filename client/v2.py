@@ -9,7 +9,7 @@ forests = cursor.get_forests(db=db)
 forests = [x.as_dict() for x in forests]
 db.close()
 
-meta = {"version": "2", "by": "Galina Churkina", "contact": "some.name@mail.com"}
+meta = {"version": "2", "by": "Galina Churkina", "contact": "ddi.support@dalberg.com"}
 
 params = {
     "cf_log": 0.5,
@@ -32,11 +32,26 @@ params = {
 }
 
 assumptions = {
-    "10%": "of harvested forest is assumed to be left on site",
-    "Storage": "Contains real storage (Building) as well as potential storage (Forest and Scrap)",
-    "Transport emmission carbon benefit": "is included in Substitution",
-    "Total carbon benefit": "is a sum of Sink and Substitution",
-    "V2": "This model allows for more detailed material selection of both buildings",
+    "V2 (CITY2FOREST) ": "focuses on building specific infrastructures such as building, bridge, etc. from timber.",
+    "Building:": "Storage of carbon in structures is estimated for all materials containing biomass-based carbon of a structure as provided by a user.",
+    "Scenarios:": """
+    Carbon storage and emissions were estimated for three scenarios, which reflect variabilities in carbon accumulation 
+    rates in forests (min, best guess, max) and in carbon emission coefficients of construction materials (min, mean, max).
+    """,
+    "Forest regrows:": """In this version of the model, it is assumed that the forest immediately regrows after timber harvest with carbon accumulation rates
+    appropriate for the geographic region and forest type. The carbon losses after timber harvest from enhanced soil respiration are assumed negligible as in selective cutting. 
+    This assumption leads to underestimation of forest losses if forest is clear cut. 
+    A range of carbon accumulation rates in forests is provided to capture the growth variability for different forest ages and in different climates.
+    """,
+    "Forest timber harvest:": """A part of the harvested biomass is left on site. It usually includes leaves, branches and tree tops, which are particularly nutrient reach and after decomposition provide those nutrients to the re-growing forests. 
+    Currently the default fraction of harvested biomass left on site is 10%. This value is based on the interview results of forest rangers in Europe and may need to be adjusted for other parts of the world.
+    """,
+    "Manufacturing:": """Only a fraction of harvested timber goes into the constructed building and the respective carbon amounts will be stored there during the building’s lifespan. 
+    There are two major steps in manufacturing when various fractions of timber can be lost such as sawing and prefabrication of building’s parts. Here it is assumed that those timber fractions and associated carbon go into the scrap wood pool. 
+    The scrap wood can be used to produce various products from wood fiber insolation to wood chips or other biomass energy sources.
+    Material substitution benefits are calculated by comparing the carbon emissions from production of conventional structure to timber structure. These emissions stem from material manufacturing and transport. 
+    Carbon emissions from manufacturing the same material can vary depending on the manufacturing technologies and energy sources. 
+    This variability was captured by using a range of values for material carbon emission coefficients where availble. """,
 }
 input = [
     {
@@ -121,7 +136,7 @@ input = [
         "name": "timber_mineral_materials",
         "category": "Timber building",
         "display_name": "Select materials",
-        "description": "Mineral materials used in the building",
+        "description": "Mineral-based materials used in the building",
         "type": "group",
         "default": "None",
         "fields": json.dumps(

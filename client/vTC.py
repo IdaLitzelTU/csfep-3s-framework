@@ -13,7 +13,7 @@ db.close()
 meta = {
     "version": "Transport Calculator v1",
     "by": "Galina Churkina",
-    "contact": "some.name@mail.com",
+    "contact": "ddi.support@dalberg.com",
 }
 
 params = {
