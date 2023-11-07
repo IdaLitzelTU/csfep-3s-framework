@@ -39,7 +39,10 @@ def get_model_versions():
     returns all existing model versions
     """
     logger.debug(f"Existing model versions: {list(model_export.keys())}")
-    return {"message": "OK", "results": list(model_export.keys())}
+    meta = {}
+    for key in model_export.keys():
+        meta[key] = model_export[key].get("meta")
+    return {"message": "OK", "results": list(model_export.keys()), "meta": meta}
 
 
 @app.get("/model/{version}")
