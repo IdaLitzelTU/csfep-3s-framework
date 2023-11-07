@@ -9,7 +9,12 @@ forests = cursor.get_forests(db=db)
 forests = [x.as_dict() for x in forests]
 db.close()
 
-meta = {"version": "2", "by": "Galina Churkina", "contact": "some.name@mail.com"}
+meta = {
+    "version": "2",
+    "by": "Galina Churkina",
+    "contact": "some.name@mail.com",
+    "description": "v2 of the model is the 'City to Forest' version, focusing on building specific infrastructures such as building, bridges, etc. from timber",
+}
 
 params = {
     "cf_log": 0.5,

@@ -4,6 +4,7 @@ meta = {
     "version": "1.0.1",  # version of the model
     "by": "some name",  # author's name
     "contact": "some.name@mail.com",  # author's email address
+    "description": "model_description",
 }
 
 input = [

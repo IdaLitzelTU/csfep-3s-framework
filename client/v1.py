@@ -1,6 +1,11 @@
 from framework import v1 as csfep_3s
 
-meta = {"version": "1", "by": "Galina Churkina", "contact": "some.name@mail.com"}
+meta = {
+    "version": "1",
+    "by": "Galina Churkina",
+    "contact": "some.name@mail.com",
+    "description": "v1 of the model is the general version, available to all project types",
+}
 
 params = {
     "cf_log": 0.5,
