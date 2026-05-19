@@ -15,6 +15,7 @@ Base.metadata.create_all(bind=engine)
 # setup loggers
 # logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO) # shows logger.info in the console
 
 
 app = FastAPI(debug=True)

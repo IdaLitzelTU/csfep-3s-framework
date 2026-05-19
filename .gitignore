@@ -4,3 +4,8 @@
 **/*.pyc
 .vscode
 **/__pycache__
+
+#debug
+export_db.py
+db_exports/
+delete_data_from_db.py
