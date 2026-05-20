@@ -51,7 +51,7 @@ input = [
         "type": "number",
         "default": 0.1,
         "min": 0,
-        "max": 1,
+        "max": 0.99999,
     },
     {
         "name": "acc_rate",
@@ -66,22 +66,24 @@ input = [
     {
         "name": "wood_used",
         "category": "Manufacturing",
-        "display_name": "Roundwood used",
-        "description": "Proportion of roundwood used for material production",
+        "display_name": "Share of roundwood used",
+        "description": "Proportion of harvested roundwood used for timber material production",
         "type": "number",
-        "default": 0.5,
-        "min": 0,
-        "max": 1,
+        "default": "50",
+        "unit": "%",
+        "min": 1,
+        "max": 100,
     },
     {
         "name": "material_used",
         "category": "Manufacturing",
-        "display_name": "Prefabricated material used",
-        "description": "Proportion of prefabricated material used in construction",
+        "display_name": "Share of prefabricated material used",
+        "description": "Proportion of prefabricated timber material used in the building construction",
         "type": "number",
-        "default": 1,
-        "min": 0,
-        "max": 1,
+        "default": "100",
+        "unit": "%",
+        "min": 1,
+        "max": 100,
     },
     {
         "name": "dmnf1",
@@ -341,10 +343,10 @@ def run(data, params, *args, **kwargs):
     )
 
     # t C stored in materials before construction
-    c_stored_in_materials = c_stored_in_building / data["material_used"]
+    c_stored_in_materials = c_stored_in_building / (data["material_used"] * 0.01)
 
     # tC stored in roundwood brought to the plant
-    c_stored_in_roundwood = c_stored_in_materials / data["wood_used"]
+    c_stored_in_roundwood = c_stored_in_materials / (data["wood_used"] * 0.01)
     c_needed_for_building = c_stored_in_roundwood / (
         1 - data["biomass_left"]
     )  # tC stored in harested trees
