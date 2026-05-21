@@ -1,6 +1,13 @@
 from framework import v2 as csfep_3s
 import json
 from model import get_db, cursor
+import logging
+
+logger = logging.getLogger(__name__)
+
+if logger.hasHandlers():
+    # Logger is already configured, remove all handlers
+    logger.handlers = []
 
 db = next(get_db())
 materials = cursor.get_materials(db=db)
@@ -244,10 +251,21 @@ input = [
         "max": 100,
     },
     {
+        "name": "biomass_used",
+        "category": "Manufacturing",
+        "display_name": "Share of biomass converted to roundwood",
+        "description": "Proportion of harvested biomass converted into roundwood",
+        "type": "number",
+        "default": 90,
+        "unit": "%",
+        "min": 1,
+        "max": 100,
+    },
+    {
         "name": "manufacturing_wood_used",
         "category": "Manufacturing",
-        "display_name": "Share of roundwood used",
-        "description": "Proportion of harvested roundwood used for timber material production",
+        "display_name": "Share of roundwood converted to prefabricated material",
+        "description": "Proportion of roundwood converted into prefabricated timber material",
         "type": "number",
         "default": "50",
         "unit": "%",
@@ -257,8 +275,8 @@ input = [
     {
         "name": "manufacturing_prefabricated_used",
         "category": "Manufacturing",
-        "display_name": "Share of prefabricated material used",
-        "description": "Proportion of prefabricated timber material used in the building construction",
+        "display_name": "Share of prefabricated material used in construction",
+        "description": "Proportion of prefabricated timber material used in the timber based building construction",
         "type": "number",
         "default": "100",
         "unit": "%",
@@ -285,23 +303,26 @@ def run(data, params, *args, **kwargs):
         0,
     )  # kgC
 
-    c_stored_in_materials = c_stored_in_building / (
-        data["manufacturing_prefabricated_used"] * 0.01
-    )
+    c_stored_in_materials = c_stored_in_building  / (data["manufacturing_prefabricated_used"] * 0.01)
+    c_stored_in_roundwood = c_stored_in_materials / (data["manufacturing_wood_used"] * 0.01)
+    c_needed_for_building = c_stored_in_roundwood / (data["biomass_used"]*0.01)  # kgC stored in harvested trees
 
-    # kgC stored in roundwood brought to the plant
-    c_stored_in_roundwood = c_stored_in_materials / (
-        data["manufacturing_wood_used"] * 0.01
-    )
 
-    c_needed_for_building = c_stored_in_roundwood / 0.9  # kgC stored in harested trees
+    # calculate scrap
+    (scrap_roundwood, scrap_material) = csfep_3s.calculate_scrap(
+        c_needed_for_building,
+        c_stored_in_roundwood,
+        c_stored_in_materials, 
+        c_stored_in_building)
+    
+    c_stored_in_scrap = scrap_roundwood + scrap_material
+    
+    #forest storage is not  part of the STORAGE output
+    # calculate forest storage
+    #c_in_forest_before_harvest = c_needed_for_building / (data["forest_harvest_intensity"] * 0.01)
+    #c_stored_in_forest = c_in_forest_before_harvest - c_needed_for_building
+    #logger.info(f"c_stored_in_forest: {c_stored_in_forest}")
 
-    # FIXME: biomass left is 1 - harvest intensity?
-    # kgC stored in scrap wood from material manufacturing and construction
-    # number_of_buildings * c_stored_in_building
-    c_harvest_2_scrap = c_stored_in_roundwood - c_stored_in_building
-    # kgC returuned to forest
-    c_harvest_2_forest = c_needed_for_building * 0.9
 
     # TODO Calculate time to replanish carbon debt in a forest
     years_to_regrow_forest = csfep_3s.years_to_accumulate(
@@ -373,8 +394,8 @@ def run(data, params, *args, **kwargs):
             c_recovered_forest / 1000, round_decimal
         )
         # carbon storage
-        scoped_data["C2Scrap"] = round(c_harvest_2_scrap / 1000, round_decimal)
-        scoped_data["C2Forest"] = round(c_harvest_2_forest / 1000, round_decimal)
+        scoped_data["C2Scrap"] = round(c_stored_in_scrap / 1000, round_decimal)
+        #scoped_data["C2Forest"] = round(c_stored_in_forest / 1000, round_decimal)
         scoped_data["C2Buildings"] = round(c_stored_in_building / 1000, round_decimal)
 
         output["tC"][scenario_name] = scoped_data

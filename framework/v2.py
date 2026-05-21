@@ -10,6 +10,29 @@ if logger.hasHandlers():
 ## Build a class Building
 ## Build a class Forest
 
+def calculate_scrap(c_needed_for_building, c_stored_in_roundwood, c_stored_in_materials, c_stored_in_building):
+    try:
+        scrap_roundwood = (
+            c_stored_in_roundwood
+            - c_stored_in_materials
+        )
+        scrap_material = (
+            c_stored_in_materials
+            - c_stored_in_building
+        )
+        logger.info(f"c_needed_for_building: {c_needed_for_building}")
+        logger.info(f"c_stored_in_roundwood: {c_stored_in_roundwood}")
+        logger.info(f"c_stored_in_materials: {c_stored_in_materials}")
+        logger.info(f"c_stored_in_building: {c_stored_in_building} in kgC")
+        logger.info(f"scrap_roundwood: {scrap_roundwood}")
+        logger.info(f"scrap_material: {scrap_material}")
+        return (
+            scrap_roundwood,
+            scrap_material,
+        )
+    except Exception as e:
+        logger.exception(e)
+
 
 def convert_to_tco2(object, coefficient, obsolve=[]):
     out = {}
