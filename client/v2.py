@@ -64,6 +64,9 @@ assumptions = {
     Material substitution benefits are calculated by comparing the carbon emissions from production of conventional structure to timber structure. These emissions stem from material manufacturing and transport.
     Carbon emissions from manufacturing the same material can vary depending on the manufacturing technologies and energy sources.
     This variability was captured by using a range of values for material carbon emission coefficients where availble. """,
+    "Storage:": """Carbon storage is calculated as the sum of the carbon stored in scrap wood and the carbon stored in the timber-based materials used in the construction.
+    Scrap wood includes the wood residues generated during the conversion of roundwood into prefabricated timber materials, as well as the wood residues produced during the construction process.
+""",
 }
 input = [
     {
@@ -308,7 +311,7 @@ def run(data, params, *args, **kwargs):
     c_needed_for_building = c_stored_in_roundwood / (data["biomass_used"]*0.01)  # kgC stored in harvested trees
 
 
-    # calculate scrap
+    # calculate scrap wood
     (scrap_roundwood, scrap_material) = csfep_3s.calculate_scrap(
         c_needed_for_building,
         c_stored_in_roundwood,
@@ -317,24 +320,19 @@ def run(data, params, *args, **kwargs):
     
     c_stored_in_scrap = scrap_roundwood + scrap_material
     
-    #forest storage is not  part of the STORAGE output
+    # forest storage is not any longer part of the STORAGE output 
     # calculate forest storage
     #c_in_forest_before_harvest = c_needed_for_building / (data["forest_harvest_intensity"] * 0.01)
     #c_stored_in_forest = c_in_forest_before_harvest - c_needed_for_building
     #logger.info(f"c_stored_in_forest: {c_stored_in_forest}")
 
 
-    # TODO Calculate time to replanish carbon debt in a forest
-    years_to_regrow_forest = csfep_3s.years_to_accumulate(
-        c_needed_for_building, "best", **data, **params
-    )
 
     constants = {
         "Accumulated": 0,  # c_accum_forest
         "Buildings floor area m2": data["building_floor_area"],
         "Number of Buildings": 1,  # number_of_buildings = data["building_number"]
         "Harvested": round(c_needed_for_building / 1000, 0),
-        "Years to Regrow Forest": round(years_to_regrow_forest, 0),
     }
 
     # RESULTS
@@ -361,6 +359,10 @@ def run(data, params, *args, **kwargs):
         scoped_data = {}
         scenario_name = f"scenario_{scenario_number}"
         scenario_number = scenario_number + 1
+
+        years_to_regrow = csfep_3s.years_to_accumulate(
+            c_needed_for_building, i, **data, **params
+        )
 
         c_recovered_forest = csfep_3s.forest_recov(i, **data, **params)
 
@@ -390,6 +392,11 @@ def run(data, params, *args, **kwargs):
         )
 
         # carbon sink
+
+        scoped_data["Years_to_Regrow"] = round(
+            years_to_regrow , round_decimal
+        )
+
         scoped_data["Carbon Recovered during Building Lifetime"] = round(
             c_recovered_forest / 1000, round_decimal
         )
@@ -400,7 +407,7 @@ def run(data, params, *args, **kwargs):
 
         output["tC"][scenario_name] = scoped_data
         output["tCO2"][scenario_name] = csfep_3s.convert_to_tco2(
-            scoped_data, params["c2co2"]
+            scoped_data, params["c2co2"], obsolve=["Years_to_Regrow"]
         )
     output["assumptions"] = assumptions
     return output

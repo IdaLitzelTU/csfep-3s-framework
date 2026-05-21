@@ -20,12 +20,6 @@ def calculate_scrap(c_needed_for_building, c_stored_in_roundwood, c_stored_in_ma
             c_stored_in_materials
             - c_stored_in_building
         )
-        logger.info(f"c_needed_for_building: {c_needed_for_building}")
-        logger.info(f"c_stored_in_roundwood: {c_stored_in_roundwood}")
-        logger.info(f"c_stored_in_materials: {c_stored_in_materials}")
-        logger.info(f"c_stored_in_building: {c_stored_in_building} in kgC")
-        logger.info(f"scrap_roundwood: {scrap_roundwood}")
-        logger.info(f"scrap_material: {scrap_material}")
         return (
             scrap_roundwood,
             scrap_material,
@@ -43,6 +37,7 @@ def convert_to_tco2(object, coefficient, obsolve=[]):
             out[key] = convert_to_tco2(value, coefficient, obsolve)
         else:
             out[key] = value
+    #logger.info(f" Out: {out}")
     return out
 
 
@@ -62,7 +57,6 @@ def c_stored_in_building(materials, *, cf_log, c_material, **kwargs):
             if c_material.get(id, {"istimber": False}).get("istimber"):
                 total = total + value
         total = total * cf_log
-        logger.info(f"Building carbon stored: {total} kgC")
         return total
     except Exception as e:
         logger.exception(e)
@@ -131,9 +125,7 @@ def years_to_accumulate(
     try:
         # change harvest intensity to fraction
         yr = carbon_harv / carbon_accumulated_in_forest_per_year(scenario, **kwargs)
-        logger.info(
-            f"Number of years needed to accumulate harvested carbon using average carbon accumulation rate of a forest from the Cook-Paton database: {yr}"
-        )
+        logger.info(f" yr: {yr}")
         return yr
     except Exception as e:
         logger.exception(e)
@@ -178,9 +170,6 @@ def forest_recov(
             carbon_accumulated_in_forest_per_year(scenario, **kwargs)
             * building_lifespan
         )
-        logger.info(
-            f"Amount of carbon recovered in the forest during the life time of a building: {cr}"
-        )
         return cr
     except Exception as e:
         logger.exception(e)
@@ -193,9 +182,6 @@ def forest_accum(area_planted, period_years, scenario, *, acc_rate, **kwargs):
     """
     try:
         cacc = acc_rate[scenario] * area_planted * period_years
-        logger.info(
-            f"Amount of carbon accumulated in the forest with area {area_planted} during a given period {yr_forest}: {cacc}"
-        )
         return cacc
     except Exception as e:
         logger.exception(e)
