@@ -82,25 +82,22 @@ def c_stored_in_building(materials, *, cf_log, c_material, **kwargs):
         return total
     except Exception as e:
         logger.exception(e)
+        
 
-
-def c_needed_for_building(
-    c_stored_in_building,
-    *,
-    manufacturing_wood_used,
-    manufacturing_prefabricated_used,
-    **kwargs,
-):
-    """This function calculates wood needed to build timber building"""
-    # tonne of C total amount of carbon needed to build building including processing losses
+def calculate_scrap(c_needed_for_building, c_stored_in_roundwood, c_stored_in_materials, c_stored_in_building):
     try:
-        w = (
-            c_stored_in_building
-            / to_coef(manufacturing_wood_used)
-            / to_coef(manufacturing_prefabricated_used)
+        scrap_roundwood = (
+            c_stored_in_roundwood
+            - c_stored_in_materials
         )
-        logger.info(f" Wood demand: {w}")
-        return w
+        scrap_material = (
+            c_stored_in_materials
+            - c_stored_in_building
+        )
+        return (
+            scrap_roundwood,
+            scrap_material,
+        )
     except Exception as e:
         logger.exception(e)
 
@@ -145,13 +142,12 @@ def c_harvested_from_forest(
     **kwargs,
 ):
     """
-    carbon harvested with harvest intensity cfHarvest from a subsection
+    carbon harvested with harvest intensity 
     """
     try:
         return (
             c_accumulated_in_forest
             * to_coef(forest_harvest_intensity)
-            * (forest_harvest_area / forest_plant_area)
         )
     except Exception as e:
         logger.exception(e)
@@ -166,8 +162,6 @@ def years_to_accumulate(
 ):
     """
     This function calculates number of years needed to accumulate harvested carbon
-    using average carbon accumulation rate of a forest from the Cook-Paton
-    database
     """
     try:
         # change harvest intensity to fraction
@@ -175,7 +169,9 @@ def years_to_accumulate(
             scenario, area, **kwargs
         )
         logger.info(
-            f"Number of years needed to accumulate harvested carbon using average carbon accumulation rate of a forest from the Cook-Paton database: {yr}"
+            f" bla: {carbon_harv, carbon_accumulated_in_forest_per_year(scenario, area, **kwargs)}")
+        logger.info(
+            f" yr: {yr}"
         )
         return yr
     except Exception as e:

@@ -312,19 +312,13 @@ input = [
 
 
 def run(data, params, *args, **kwargs):
-    """
-    Make sure you have common data and output for each version of the model
-    """
     # Calculate carbon storage in timber building and
     # carbon needed to be extracted from forest or demand for carbon
 
     # t C stored in timber materials in the construction
-    c_stored_in_building = round(
-        csfep_3s.c_stored_in_building(
+    c_stored_in_building = csfep_3s.c_stored_in_building(
             data["timber_biomass_materials"], **data, **params
-        ),
-        0,
-    )  # kgC
+    )# kgC
 
 
     # calculate needed c in:  building <- materials <- roundwood <- forest

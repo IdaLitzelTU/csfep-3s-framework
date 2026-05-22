@@ -124,6 +124,17 @@ input = [
         "unit": "%",
     },
     {
+        "name": "biomass_used",
+        "category": "Manufacturing",
+        "display_name": "Share of biomass converted to roundwood",
+        "description": "Proportion of harvested biomass converted into roundwood",
+        "type": "number",
+        "default": 90,
+        "unit": "%",
+        "min": 1,
+        "max": 100,
+    },
+    {
         "name": "manufacturing_wood_used",
         "category": "Manufacturing",
         "display_name": "Share of roundwood used",
@@ -277,11 +288,20 @@ def run(data, params, *args, **kwargs):
     c_stored_in_building = csfep_3s.c_stored_in_building(
         data["timber_biomass_materials"], **data, **params
     )
+   # calculate c needed in:  building <- materials <- roundwood <- forest
+    c_stored_in_materials = c_stored_in_building  / (data["manufacturing_prefabricated_used"] * 0.01)
+    c_stored_in_roundwood = c_stored_in_materials / (data["manufacturing_wood_used"] * 0.01)
+    c_needed_for_building = c_stored_in_roundwood / (data["biomass_used"]*0.01)  # kgC stored in harvested trees
 
-    # How much carbon we need to harvest assuming loss in manufacturing?
-    c_needed_for_building = csfep_3s.c_needed_for_building(
-        c_stored_in_building, **data, **params
-    )
+    # calculate scrap wood
+    (scrap_roundwood, scrap_material) = csfep_3s.calculate_scrap(
+        c_needed_for_building,
+        c_stored_in_roundwood,
+        c_stored_in_materials, 
+        c_stored_in_building)
+    
+    c_stored_in_scrap = scrap_roundwood + scrap_material
+
 
     # RESULTS
     output = {
@@ -296,29 +316,39 @@ def run(data, params, *args, **kwargs):
         scenario_name = f"scenario_{scenario_number}"
         scenario_number = scenario_number + 1
 
-        # How much carbon is generated on site harversed over the years that
-        # the forest growing?
+        ## Sink
+        # How much carbon accumulated in the forest_harvested_area in the forest_regrow_time?
         c_accumulated_in_forest = csfep_3s.carbon_accumulated_in_forest(
-            scenario, data["forest_plant_area"], **data, **params
+            scenario, data["forest_harvest_area"], **data, **params
         )
 
-        # How much carbon is harvested from forest given harvest intencity
+        # How much carbon is harvested from forest_harvested_area given harvest intensity
         c_harvested = csfep_3s.c_harvested_from_forest(
             c_accumulated_in_forest, **data, **params
         )
 
-        # How much time it will take to regrow carbon in the forest?
+        # How much time it will it take to regrow carbon in forest_harvest_area
         years_to_regrow_forest = csfep_3s.years_to_accumulate(
             scenario, data["forest_harvest_area"], c_harvested, **data, **params
         )
 
-        # How much carbon will be recovered in the forest given lifespawn of the building?
+        # How much time it will it take to regrow carbon in forest_planted_area
+        years_to_regrow_plant_forest = csfep_3s.years_to_accumulate(
+            scenario, data["forest_plant_area"], c_harvested, **data, **params
+        )
+
+        # How much carbon will be recovered in the forest given lifespann of the building?
         c_recovered_in_forest = csfep_3s.c_recovered_in_forest_over_building_lifetime(
             scenario, data["forest_harvest_area"], **data, **params
         )
 
+        # How much carbon will be recovered in the forest given lifespann of the building?
+        c_recovered_in_plant_forest = csfep_3s.c_recovered_in_forest_over_building_lifetime(
+            scenario, data["forest_plant_area"], **data, **params
+        )
+
         # How many buildings can be built given carbon harvested?
-        number_of_building_possible = (c_harvested * 0.9) // c_needed_for_building
+        number_of_building_possible = c_harvested  // c_needed_for_building
 
         # What is the total building area?
         total_building_area = (
@@ -328,9 +358,8 @@ def run(data, params, *args, **kwargs):
         # Total carbon stored in all buildings
         total_c_in_building = number_of_building_possible * c_stored_in_building
 
-        # Scrap/waste not used in production
-        c_in_scrap = (c_harvested * 0.9) - total_c_in_building
-
+        ## Substitution
+        # conventional
         c_emitted_conventional_manufacturing = (
             csfep_3s.emitted_manufacturing(
                 scenario, data["conventional_biomass_materials"], **params
@@ -346,7 +375,7 @@ def run(data, params, *args, **kwargs):
             ]
             * number_of_building_possible
         )
-
+        # timber based
         c_emitted_timber_manufacturing = (
             csfep_3s.emitted_manufacturing(
                 scenario, data["timber_biomass_materials"], **params
@@ -362,12 +391,13 @@ def run(data, params, *args, **kwargs):
         )
 
         scoped_data["c_accumulated"] = c_accumulated_in_forest
-        scoped_data["c_harvested"] = c_harvested * 0.9
+        scoped_data["c_harvested"] = c_harvested 
         scoped_data["c_recovered"] = c_recovered_in_forest
-        scoped_data["c_forest"] = c_harvested * 0.1
-        scoped_data["c_lost"] = c_in_scrap
+        scoped_data["c_recovered_plant"] = c_recovered_in_plant_forest
+        scoped_data["c_lost"] = c_stored_in_scrap
         scoped_data["c_in_building"] = total_c_in_building
         scoped_data["years_to_regrow_forest"] = years_to_regrow_forest
+        scoped_data["years_to_regrow_plant_forest"] = years_to_regrow_plant_forest
         scoped_data["building_area"] = total_building_area
         scoped_data["number_of_buildings"] = number_of_building_possible
         scoped_data["conventional_manufacturing"] = c_emitted_conventional_manufacturing
@@ -377,7 +407,7 @@ def run(data, params, *args, **kwargs):
         scoped_data = csfep_3s.convert(
             scoped_data,
             1 / 1000,
-            obsolve=["years_to_regrow_forest", "number_of_buildings", "building_area"],
+            obsolve=["years_to_regrow_forest", "years_to_regrow_plant_forest", "number_of_buildings", "building_area"],
         )
 
         scoped_data = csfep_3s.round_all(scoped_data, round_decimal)
@@ -386,7 +416,7 @@ def run(data, params, *args, **kwargs):
         scoped_data_in_co2 = csfep_3s.convert(
             scoped_data,
             params["c2co2"],
-            obsolve=["years_to_regrow_forest", "number_of_buildings", "building_area"],
+            obsolve=["years_to_regrow_forest","years_to_regrow_plant_forest", "number_of_buildings", "building_area"],
         )
         scoped_data_in_co2 = csfep_3s.round_all(scoped_data_in_co2, round_decimal)
         output["tCO2"][scenario_name] = scoped_data_in_co2
