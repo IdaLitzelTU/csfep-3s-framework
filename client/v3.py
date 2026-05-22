@@ -53,7 +53,9 @@ assumptions = {
     Carbon emissions from manufacturing the same material can vary depending on the manufacturing technologies and energy sources. 
     This variability was captured by using a range of values for material carbon emission coefficients where availble. """,
 }
-
+output_description = {
+    "V2 (CITY) ": "focuses on building specific infrastructures such as building, bridge, etc. from timber.",
+}
 
 # Planted forest area’ [ha] and ‘Forest regrow time’ [years].
 input = [
@@ -389,4 +391,5 @@ def run(data, params, *args, **kwargs):
         scoped_data_in_co2 = csfep_3s.round_all(scoped_data_in_co2, round_decimal)
         output["tCO2"][scenario_name] = scoped_data_in_co2
     output["assumptions"] = assumptions
+    output["output_description"] = output_description
     return output

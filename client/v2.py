@@ -43,6 +43,7 @@ params = {
     },
 }
 
+
 assumptions = {
     "V2 (CITY2FOREST) ": "focuses on building specific infrastructures such as building, bridge, etc. from timber.",
     "Building:": "Storage of carbon in structures is estimated for all materials containing biomass-based carbon of a structure as provided by a user.",
@@ -64,10 +65,26 @@ assumptions = {
     Material substitution benefits are calculated by comparing the carbon emissions from production of conventional structure to timber structure. These emissions stem from material manufacturing and transport.
     Carbon emissions from manufacturing the same material can vary depending on the manufacturing technologies and energy sources.
     This variability was captured by using a range of values for material carbon emission coefficients where availble. """,
-    "Storage:": """Carbon storage is calculated as the sum of the carbon stored in scrap wood and the carbon stored in the timber-based materials used in the construction.
-    Scrap wood includes the wood residues generated during the conversion of roundwood into prefabricated timber materials, as well as the wood residues produced during the construction process.
-""",
+
 }
+
+output_description = {
+    "Description of the output: \n":
+    "\n",
+
+    "Forest carbon recovery (full area)":
+    "Total amount of carbon accumulated after harvest across the entire harvested forest area over the building lifetime.",
+
+    "Regrowth time (full area)": 
+        "Time required for the entire harvested forest area to grow and replenish the carbon removed by harvesting.",
+
+    "Forest carbon recovery (harvested share)": 
+        "Total amount of carbon accumulated after harvest on the actually harvested share of the forest area (e.g. the fraction defined by harvest intensity) over the building lifetime.",
+
+    "Regrowth time (harvested share)": 
+        "Time required for the harvested portion of the forest area to grow and replenish the carbon removed by harvesting at the applied intensity."
+}
+
 input = [
     {
         "name": "building_floor_area",
@@ -296,9 +313,7 @@ def run(data, params, *args, **kwargs):
     # Calculate carbon storage in timber building and
     # carbon needed to be extracted from forest or demand for carbon
 
-    # t C stored in materials before construction
-    # TODO: If we allow for biomass materials in conventional building,
-    # should we withdraw the c_stored_in_conventional_building from this value?
+    # t C stored in timber materials in the construction
     c_stored_in_building = round(
         csfep_3s.c_stored_in_building(
             data["timber_biomass_materials"], **data, **params
@@ -306,6 +321,8 @@ def run(data, params, *args, **kwargs):
         0,
     )  # kgC
 
+
+    # calculate needed c in:  building <- materials <- roundwood <- forest
     c_stored_in_materials = c_stored_in_building  / (data["manufacturing_prefabricated_used"] * 0.01)
     c_stored_in_roundwood = c_stored_in_materials / (data["manufacturing_wood_used"] * 0.01)
     c_needed_for_building = c_stored_in_roundwood / (data["biomass_used"]*0.01)  # kgC stored in harvested trees
@@ -354,17 +371,25 @@ def run(data, params, *args, **kwargs):
     scenario_number = 1
     round_decimal = 2
     for pos, i in enumerate(["min", "best", "max"]):
-        # define mineral building materials
-        # define timber building material
         scoped_data = {}
         scenario_name = f"scenario_{scenario_number}"
         scenario_number = scenario_number + 1
 
+        # years_to_regrow = c_needed_for_building / (c_acc_rate[i] * forest_harvest_area)
         years_to_regrow = csfep_3s.years_to_accumulate(
-            c_needed_for_building, i, **data, **params
+            c_needed_for_building, i, intensity = False, **data, **params
         )
 
-        c_recovered_forest = csfep_3s.forest_recov(i, **data, **params)
+        #c_recovered_forest = (c_acc_rate[i] * forest_harvest_area) * building_lifespan
+        c_recovered_forest = csfep_3s.forest_recov(i, intensity = False, **data, **params)
+
+        # years_to_regrow_with_intensity = c_needed_for_building / (c_acc_rate[i] * forest_harvest_area * (forest_harvest_intensity * 0.01))
+        years_to_regrow_with_intensity = csfep_3s.years_to_accumulate(
+            c_needed_for_building, i, intensity = True, **data, **params
+        )
+
+        #c_recovered_forest_with_intensity = (c_acc_rate[i] * forest_harvest_area * (forest_harvest_intensity * 0.01)) * building_lifespan
+        c_recovered_forest_with_intensity = csfep_3s.forest_recov(i, intensity = True, **data, **params)
 
         c_emitted_conventional = csfep_3s.emitted_manufacturing(
             i, data["conventional_biomass_materials"], **params
@@ -393,6 +418,7 @@ def run(data, params, *args, **kwargs):
 
         # carbon sink
 
+        # sink without intensity
         scoped_data["Years_to_Regrow"] = round(
             years_to_regrow , round_decimal
         )
@@ -400,6 +426,16 @@ def run(data, params, *args, **kwargs):
         scoped_data["Carbon Recovered during Building Lifetime"] = round(
             c_recovered_forest / 1000, round_decimal
         )
+        
+        # sink with intensity
+        scoped_data["Years_to_Regrow_intensity"] = round(
+            years_to_regrow_with_intensity , round_decimal
+        )
+
+        scoped_data["Carbon Recovered during Building Lifetime_intensity"] = round(
+            c_recovered_forest_with_intensity / 1000, round_decimal
+        )
+
         # carbon storage
         scoped_data["C2Scrap"] = round(c_stored_in_scrap / 1000, round_decimal)
         #scoped_data["C2Forest"] = round(c_stored_in_forest / 1000, round_decimal)
@@ -407,7 +443,8 @@ def run(data, params, *args, **kwargs):
 
         output["tC"][scenario_name] = scoped_data
         output["tCO2"][scenario_name] = csfep_3s.convert_to_tco2(
-            scoped_data, params["c2co2"], obsolve=["Years_to_Regrow"]
+            scoped_data, params["c2co2"], obsolve=["Years_to_Regrow", "Years_to_Regrow_intensity"]
         )
     output["assumptions"] = assumptions
+    output["output_description"] = output_description
     return output

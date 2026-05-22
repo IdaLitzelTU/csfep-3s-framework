@@ -115,6 +115,7 @@ def wood_demand(carbon_bld, *, wood_used, material_used, **kwargs):
 def years_to_accumulate(
     carbon_harv,  # should be in tonnes?
     scenario,
+    intensity,
     **kwargs,
 ):
     """
@@ -124,7 +125,7 @@ def years_to_accumulate(
     """
     try:
         # change harvest intensity to fraction
-        yr = carbon_harv / carbon_accumulated_in_forest_per_year(scenario, **kwargs)
+        yr = carbon_harv / carbon_accumulated_in_forest_per_year(scenario, intensity, **kwargs)
         logger.info(f" yr: {yr}")
         return yr
     except Exception as e:
@@ -137,8 +138,10 @@ def get_scenario_index(scenario, *args, **kwargs):
     return index[scenario]
 
 
+
 def carbon_accumulated_in_forest_per_year(
     scenario,
+    intensity,
     *,
     forest_c_acc_rate,
     forest_harvest_area,
@@ -146,8 +149,13 @@ def carbon_accumulated_in_forest_per_year(
     **kwargs,
 ):
     try:
+        if not intensity:
+            forest_harvest_intensity = 100
+            logger.info(f" carbon_acc: {intensity}")
         c_acc_rate = forest_c_acc_rate[get_scenario_index(scenario)]
-        c_acc = c_acc_rate * forest_harvest_area * (forest_harvest_intensity * 0.01)
+        c_acc = c_acc_rate * forest_harvest_area  * (forest_harvest_intensity * 0.01)
+        
+        logger.info(f" carbon_acc: {intensity}, {c_acc}")
         return c_acc
     except Exception as e:
         logger.exception(e)
@@ -156,6 +164,7 @@ def carbon_accumulated_in_forest_per_year(
 
 def forest_recov(
     scenario,
+    intensity,
     *,
     building_lifespan,
     **kwargs,
@@ -167,7 +176,7 @@ def forest_recov(
     try:
         # tCO2/ha/y * ha = tCO2/y
         cr = (
-            carbon_accumulated_in_forest_per_year(scenario, **kwargs)
+            carbon_accumulated_in_forest_per_year(scenario, intensity, **kwargs)
             * building_lifespan
         )
         return cr
