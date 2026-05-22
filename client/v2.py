@@ -45,11 +45,11 @@ params = {
 
 
 assumptions = {
-    "V2 (CITY2FOREST) ": "focuses on building specific infrastructures such as building, bridge, etc. from timber.",
-    "Building:": "Storage of carbon in structures is estimated for all materials containing biomass-based carbon of a structure as provided by a user.",
-    "Scenarios:": """
-    Carbon storage and emissions were estimated for three scenarios, which reflect variabilities in carbon accumulation
-    rates in forests (min, best guess, max) and in carbon emission coefficients of construction materials (min, mean, max).
+    "V2 (CITY2FOREST)": 
+    """Focuses on building-specific infrastructures such as buildings and bridges constructed from timber. It quantifies the 3S components: Sink, Storage, and Substitution.
+    Sink is the amount of carbon accumulated in the forest over the lifetime of the timber building.
+    Storage is the amount of carbon stored in the timber building.
+    Substitution is the amount of carbon emissions avoided by using timber instead of conventional mineral-based construction materials.,
     """,
     "Forest regrows:": """In this version of the model, it is assumed that the forest immediately regrows after timber harvest with carbon accumulation rates
     appropriate for the geographic region and forest type. The carbon losses after timber harvest from enhanced soil respiration are assumed negligible as in selective cutting.
@@ -64,33 +64,38 @@ assumptions = {
     The scrap wood can be used to produce various products from wood fiber insolation to wood chips or other biomass energy sources.
     Material substitution benefits are calculated by comparing the carbon emissions from production of conventional structure to timber structure. These emissions stem from material manufacturing and transport.
     Carbon emissions from manufacturing the same material can vary depending on the manufacturing technologies and energy sources.
-    This variability was captured by using a range of values for material carbon emission coefficients where availble. """,
+    This variability was captured by using a range of values for material carbon emission coefficients where availble.""",
 
 }
 
 output_description = {
-    "Description of the output: \n":
-    "\n",
+    "Scenarios\n": 
+        "S1 uses minimum forest carbon accumulation rates and minimum material production emissions. \n"
+        "S2 uses best-guess accumulation rates and mean material production emissions. \n"
+        "S3 uses maximum accumulation rates and maximum material production emissions.\n",
 
-    "Forest carbon recovery (full area)":
-    "Total amount of carbon accumulated after harvest across the entire harvested forest area over the building lifetime.",
+    "Sink\n":
+        "Describes the amount of carbon captured by the forest over the lifetime of the timber building. "
+        "It is calculated using minimum, best-guess, or maximum accumulation rates depending on the scenario.\n"
+        "• Forest carbon recovered (full area): Total amount of carbon accumulated after harvest across the entire harvested forest area over the building lifetime.\n"
+        "• Regrowth time (full area): Time required for the entire harvested forest area to regrow and replenish the carbon removed by harvesting.\n"
+        "• Forest carbon recovered (harvested share): Total amount of carbon accumulated after harvest on the harvested share of the forest area (e.g. defined by harvest intensity) over the building lifetime.\n"
+        "• Regrowth time (harvested share): Time required for the harvested portion of the forest area to regrow and replenish the carbon removed by harvesting at the applied intensity.",
 
-    "Regrowth time (full area)": 
-        "Time required for the entire harvested forest area to grow and replenish the carbon removed by harvesting.",
+    "Substitution\n": 
+        "Amount of carbon emissions avoided by using timber-based construction instead of conventional mineral-based construction. "
+        "It is calculated as the difference between emissions from conventional materials and timber-based materials, including production and transport emissions.\n",
 
-    "Forest carbon recovery (harvested share)": 
-        "Total amount of carbon accumulated after harvest on the actually harvested share of the forest area (e.g. the fraction defined by harvest intensity) over the building lifetime.",
-
-    "Regrowth time (harvested share)": 
-        "Time required for the harvested portion of the forest area to grow and replenish the carbon removed by harvesting at the applied intensity."
+    "Storage\n": 
+        "Amount of carbon stored in the timber-based building, plus carbon stored in scrap wood resulting from the manufacturing process."
 }
 
 input = [
     {
         "name": "building_floor_area",
         "category": "Building",
-        "display_name": "Total floor area",
-        "description": "The floor area",
+        "display_name": "Total floor area of the timber building",
+        "description": "The floor area of the timber building",
         "type": "number",
         "default": "None",
         "unit": "m2",
@@ -100,8 +105,8 @@ input = [
     {
         "name": "building_lifespan",
         "category": "Building",
-        "display_name": "Expected life span of the building",
-        "description": "The expected life span of the building",
+        "display_name": "Expected life span of the timber building",
+        "description": "The expected life span of the timber building",
         "type": "number",
         "default": "None",
         "unit": "years",
@@ -111,7 +116,7 @@ input = [
     {
         "name": "conventional_mineral_materials",
         "category": "Conventional building",
-        "display_name": "Select materials",
+        "display_name": "Select mineral-based materials",
         "description": "Mineral-based materials used in the building",
         "type": "group",
         "default": "None",
@@ -135,8 +140,8 @@ input = [
     {
         "name": "conventional_biomass_materials",
         "category": "Conventional building",
-        "display_name": "Select materials",
-        "description": "Biomass-based materials used in the building",
+        "display_name": "Select biomass-based materials",
+        "description": "Biomass-based materials used in the conventional building",
         "type": "group",
         "default": "None",
         "fields": json.dumps(
@@ -167,8 +172,8 @@ input = [
     {
         "name": "timber_mineral_materials",
         "category": "Timber building",
-        "display_name": "Select materials",
-        "description": "Mineral-based materials used in the building",
+        "display_name": "Select mineral-based materials",
+        "description": "Mineral-based materials used in the timber building",
         "type": "group",
         "default": "None",
         "fields": json.dumps(
@@ -191,8 +196,8 @@ input = [
     {
         "name": "timber_biomass_materials",
         "category": "Timber building",
-        "display_name": "Select materials",
-        "description": "Biomass-based materials used in the building",
+        "display_name": "Select biomass-based materials",
+        "description": "Biomass-based materials used in the timber building",
         "type": "group",
         "default": "None",
         "fields": json.dumps(
@@ -251,8 +256,8 @@ input = [
     {
         "name": "forest_harvest_area",
         "category": "Forest",
-        "display_name": "Harvested area",
-        "description": "An area of forest harvested",
+        "display_name": "Forest area available for harvesting",
+        "description": "Forest area subject to partial harvesting",
         "type": "number",
         "default": "None",
         "unit": "ha",
@@ -391,11 +396,17 @@ def run(data, params, *args, **kwargs):
         #c_recovered_forest_with_intensity = (c_acc_rate[i] * forest_harvest_area * (forest_harvest_intensity * 0.01)) * building_lifespan
         c_recovered_forest_with_intensity = csfep_3s.forest_recov(i, intensity = True, **data, **params)
 
+
+        # manufactoring emissions for materials of both buildings:
+
+        # conventional building
         c_emitted_conventional = csfep_3s.emitted_manufacturing(
             i, data["conventional_biomass_materials"], **params
         ) + csfep_3s.emitted_manufacturing(
             i, data["conventional_mineral_materials"], **params
         )
+
+        # timber building
         c_emitted_timber = csfep_3s.emitted_manufacturing(
             i, data["timber_biomass_materials"], **params
         ) + csfep_3s.emitted_manufacturing(
@@ -410,8 +421,8 @@ def run(data, params, *args, **kwargs):
             data["c_emitted_transport_conventional"][pos] / 1000, round_decimal
         )
 
-        scoped_data["MT Production"] = round(c_emitted_timber / 1000, round_decimal)
-        # [0,0,0]
+        scoped_data["MT Production"] = round(c_emitted_timber / 1000, round_decimal
+        )
         scoped_data["MT Transport"] = round(
             data["c_emitted_transport_timber"][pos] / 1000, round_decimal
         )
