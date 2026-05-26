@@ -1,6 +1,13 @@
 from framework import v3 as csfep_3s
 import json
 from model import get_db, cursor
+import logging
+
+logger = logging.getLogger(__name__)
+
+if logger.hasHandlers():
+    # Logger is already configured, remove all handlers
+    logger.handlers = []
 
 db = next(get_db())
 materials = cursor.get_materials(db=db)
@@ -38,23 +45,42 @@ params = {
 assumptions = {
     "V3 (FOREST2CITY)": "focuses on regional afforestation and potential development of timber economy, e.g., establish manufacturing construction materials, for the afforested region.",
     "Building:": "Storage of carbon in structures is estimated for all materials containing biomass-based carbon of a structure as provided by a user.",
-    "Scenarios:": """
-    Carbon storage and emissions were estimated for three scenarios, which reflect variabilities in carbon accumulation 
-    rates in forests (min, best guess, max) and in carbon emission coefficients of construction materials (min, mean, max).
+    "Scenarios:": "Carbon storage and emissions were estimated for three scenarios, which reflect variabilities in carbon accumulation rates in forests (min, best guess, max) and in carbon emission coefficients of construction materials (min, mean, max).",
+    "Forest timber harvest:": """A part of the harvested biomass is left on site. It usually includes leaves, branches and tree tops, which are particularly nutrient rich and after decomposition provide those nutrients to the re-growing forests. Currently the default fraction of biomass converted to roundwood is 90%. This value is based on the interview results of forest rangers in Europe and may need to be adjusted for other parts of the world.
     """,
-    "Forest timber harvest:": """A part of the harvested biomass is left on site. It usually includes leaves, branches and tree tops, 
-    which are particularly nutrient rich and after decomposition provide those nutrients to the re-growing forests. 
-    Currently the default fraction of harvested biomass left on site is 10%. This value is based on the interview results of forest rangers in Europe and may need to be adjusted for other parts of the world.
-    """,
-    "Manufacturing:": """Only a fraction of harvested timber goes into the constructed building and the respective carbon amounts will be stored there during the building’s lifespan. 
-    There are two major steps in manufacturing when various fractions of timber can be lost such as sawing and prefabrication of building’s parts. Here it is assumed that those timber fractions and associated carbon go into the scrap wood pool. 
-    The scrap wood can be used to produce various products from wood fiber insolation to wood chips or other biomass energy sources.
-    Material substitution benefits are calculated by comparing the carbon emissions from production of conventional structure to timber structure. These emissions stem from material manufacturing and transport. 
-    Carbon emissions from manufacturing the same material can vary depending on the manufacturing technologies and energy sources. 
-    This variability was captured by using a range of values for material carbon emission coefficients where availble. """,
+    "Manufacturing:": """Only a fraction of harvested timber goes into the constructed building and the respective carbon amounts will be stored there during the building’s lifespan. There are two major steps in manufacturing when various fractions of timber can be lost such as sawing and prefabrication of building’s parts. Here it is assumed that those timber fractions and associated carbon go into the scrap wood pool. The scrap wood can be used to produce various products from wood fiber insolation to wood chips or other biomass energy sources.
+    Material substitution benefits are calculated by comparing the carbon emissions from production of conventional structure to timber structure. These emissions stem from material manufacturing and transport. Carbon emissions from manufacturing the same material can vary depending on the manufacturing technologies and energy sources. This variability was captured by using a range of values for material carbon emission coefficients where availble. """,
 }
 output_description = {
-    "V2 (CITY) ": "focuses on building specific infrastructures such as building, bridge, etc. from timber.",
+    "Scenarios\n": 
+        "S1 uses minimum forest carbon accumulation rates and minimum material production emissions.\n"
+        "S2 uses best-guess accumulation rates and mean material production emissions.\n"
+        "S3 uses maximum accumulation rates and maximum material production emissions.\n",
+
+    "Overview\n": 
+        "After afforestation, the forest regrows over time and gradually accumulates carbon. "
+        "Depending on the selected scenario, different carbon accumulation rates are used to estimate "
+        "how much carbon is stored in the forest after the regrowth period. "
+        "Part of the forest area is then harvested for timber production, while the harvesting intensity "
+        "defines how much timber is actually removed from the harvested area. "
+        "The model estimates how much carbon is harvested from the forest, "
+        "how many timber-based buildings can be constructed, and the resulting total floor area of these buildings.",
+
+    "Sink\n":
+        "Describes the amount of carbon captured by the forest over the lifetime of the timber building. "
+        "It is calculated using minimum, best-guess, or maximum accumulation rates depending on the scenario.\n"
+        "• Carbon recovered in planted area: Total amount of carbon accumulated after harvest across the entire planted forest area over the building lifetime.\n"
+        "• Time to replenish carbon in planted area: Time required for the planted forest area to regrow and replenish the carbon removed by harvesting.\n"
+        "• Carbon recovered in harvested area: Total amount of carbon accumulated after harvest on the harvested share of the planted forest area over the building lifetime.\n"
+        "• Time to replenish carbon in harvested area: Time required for the harvested area to regrow and replenish the carbon removed by harvesting.\n",
+
+    "Substitution\n": 
+        "Amount of carbon emissions avoided by using timber-based construction instead of conventional mineral-based construction. "
+        "It is calculated as the difference between emissions from conventional materials and timber-based materials, "
+        "including production and transport emissions.\n",
+
+    "Storage\n": 
+        "Amount of carbon stored in the timber-based building, plus carbon stored in scrap wood generated during the manufacturing process."
 }
 
 # Planted forest area’ [ha] and ‘Forest regrow time’ [years].
@@ -178,7 +204,7 @@ input = [
         "name": "timber_mineral_materials",
         "category": "Timber building frame",
         "display_name": "Select mineral-based materials",
-        "description": "Mineral-based materials used in the building",
+        "description": "Mineral-based materials used in the timber building",
         "type": "group",
         "default": "None",
         "fields": json.dumps(
@@ -200,7 +226,7 @@ input = [
         "name": "timber_biomass_materials",
         "category": "Timber building frame",
         "display_name": "Select biomass-based materials",
-        "description": "Biomass-based materials used in the building",
+        "description": "Biomass-based materials used in the timber building",
         "type": "group",
         "default": "None",
         "fields": json.dumps(
@@ -231,7 +257,7 @@ input = [
         "name": "conventional_mineral_materials",
         "category": "Conventional building frame",
         "display_name": "Select mineral-based materials",
-        "description": "Mineral-based materials used in the building",
+        "description": "Mineral-based materials used in the conventional building",
         "type": "group",
         "default": "None",
         "fields": json.dumps(
@@ -253,7 +279,7 @@ input = [
         "name": "conventional_biomass_materials",
         "category": "Conventional building frame",
         "display_name": "Select biomass-based materials",
-        "description": "Biomass-based materials used in the building",
+        "description": "Biomass-based materials used in the conventional building",
         "type": "group",
         "default": "None",
         "fields": json.dumps(
@@ -293,7 +319,7 @@ def run(data, params, *args, **kwargs):
     c_stored_in_roundwood = c_stored_in_materials / (data["manufacturing_wood_used"] * 0.01)
     c_needed_for_building = c_stored_in_roundwood / (data["biomass_used"]*0.01)  # kgC stored in harvested trees
 
-    # calculate scrap wood
+    # calculate scrap wood for one building
     (scrap_roundwood, scrap_material) = csfep_3s.calculate_scrap(
         c_needed_for_building,
         c_stored_in_roundwood,
@@ -358,6 +384,7 @@ def run(data, params, *args, **kwargs):
         # Total carbon stored in all buildings
         total_c_in_building = number_of_building_possible * c_stored_in_building
 
+
         ## Substitution
         # conventional
         c_emitted_conventional_manufacturing = (
@@ -394,7 +421,7 @@ def run(data, params, *args, **kwargs):
         scoped_data["c_harvested"] = c_harvested 
         scoped_data["c_recovered"] = c_recovered_in_forest
         scoped_data["c_recovered_plant"] = c_recovered_in_plant_forest
-        scoped_data["c_lost"] = c_stored_in_scrap
+        scoped_data["c_lost"] = c_stored_in_scrap * number_of_building_possible
         scoped_data["c_in_building"] = total_c_in_building
         scoped_data["years_to_regrow_forest"] = years_to_regrow_forest
         scoped_data["years_to_regrow_plant_forest"] = years_to_regrow_plant_forest
