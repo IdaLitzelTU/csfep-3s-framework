@@ -27,7 +27,7 @@ params = {
     "cf_log": 0.5,
     "c2co2": 3.67,
     # TODO: move transport to DB?
-    "k_truck": {"min": 0.17398, "best": 0.36024, "max": 0.55731},
+    "k_truck": {"min": 0.17398, "best": 0.36024, "max": 0.55731}, #[t CO2 eq/t material]
     "k_sea": {"min": 0.013155, "best": 0.013155, "max": 0.013155},
     "c_material": {
         x["id"]: {
@@ -62,9 +62,9 @@ assumptions = {
 
 output_description = {
     "Scenarios\n": 
-        "S1 uses minimum forest carbon accumulation rates and minimum material production emissions. \n"
-        "S2 uses best-guess accumulation rates and mean material production emissions. \n"
-        "S3 uses maximum accumulation rates and maximum material production emissions.\n",
+        "S1 uses minimum forest carbon accumulation rates, minimum material production emissions, and minimum transport emission coefficients.\n"
+        "S2 uses best-guess accumulation rates, mean material production emissions, and best-guess transport emission coefficients.\n"
+        "S3 uses maximum accumulation rates, maximum material production emissions, and maximum transport emission coefficients.\n",
 
     "Sink\n":
         "Describes the amount of carbon captured by the forest over the lifetime of the timber building. "
@@ -159,7 +159,7 @@ input = [
         "description": "Carbon emitted transporting materials for conventional building",
         "type": "modal",
         "default": "None",
-        "unit": "kgC",
+        "unit": "kg",
     },
     {
         "name": "timber_mineral_materials",
@@ -215,7 +215,7 @@ input = [
         "description": "Carbon emitted transporting materials for timber building",
         "type": "modal",
         "default": "None",
-        "unit": "kgC",
+        "unit": "kg",
     },
     {
         "name": "forest_c_acc_rate",

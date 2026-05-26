@@ -13,7 +13,7 @@ db = next(get_db())
 materials = cursor.get_materials(db=db)
 materials = [x.as_dict() for x in materials]
 forests = cursor.get_forests(db=db)
-forests = [x.as_dict() for x in forests]
+forests = [x.as_dict() for x in forests] #kg/ha/yr
 db.close()
 
 meta = {
@@ -53,9 +53,9 @@ assumptions = {
 }
 output_description = {
     "Scenarios\n": 
-        "S1 uses minimum forest carbon accumulation rates and minimum material production emissions.\n"
-        "S2 uses best-guess accumulation rates and mean material production emissions.\n"
-        "S3 uses maximum accumulation rates and maximum material production emissions.\n",
+        "S1 uses minimum forest carbon accumulation rates, minimum material production emissions, and minimum transport emission coefficients.\n"
+        "S2 uses best-guess accumulation rates, mean material production emissions, and best-guess transport emission coefficients.\n"
+        "S3 uses maximum accumulation rates, maximum material production emissions, and maximum transport emission coefficients.\n",
 
     "Overview\n": 
         "After afforestation, the forest regrows over time and gradually accumulates carbon. "
@@ -251,7 +251,7 @@ input = [
         "description": "Carbon emitted transporting materials for timber building",
         "type": "modal",
         "default": "None",
-        "unit": "km",
+        "unit": "kg",
     },
     {
         "name": "conventional_mineral_materials",
@@ -304,7 +304,7 @@ input = [
         "description": "Carbon emitted transporting materials for conventional building",
         "type": "modal",
         "default": "None",
-        "unit": "km",
+        "unit": "kg",
     },
 ]
 
@@ -326,7 +326,7 @@ def run(data, params, *args, **kwargs):
         c_stored_in_materials, 
         c_stored_in_building)
     
-    c_stored_in_scrap = scrap_roundwood + scrap_material
+    c_stored_in_scrap = scrap_roundwood + scrap_material #kgC
 
 
     # RESULTS
@@ -434,7 +434,7 @@ def run(data, params, *args, **kwargs):
         scoped_data = csfep_3s.convert(
             scoped_data,
             1 / 1000,
-            obsolve=["years_to_regrow_forest", "years_to_regrow_plant_forest", "number_of_buildings", "building_area"],
+            obsolve=["years_to_regrow_forest", "years_to_regrow_plant_forest", "number_of_buildings", "building_area"], #converted into tC
         )
 
         scoped_data = csfep_3s.round_all(scoped_data, round_decimal)

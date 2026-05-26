@@ -469,4 +469,5 @@ def run(data, params, *args, **kwargs):
         )
 
     output["assumptions"] = assumptions
+    output["output_description"] = assumptions
     return output
