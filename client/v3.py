@@ -17,7 +17,7 @@ forests = [x.as_dict() for x in forests] #kg/ha/yr
 db.close()
 
 meta = {
-    "description": "v3 of the model is the 'Forest to City' version, focusing on regional afforestation and potential development of timber economy, e.g., establish manufacturing construction materials for the afforested region",
+    "description": "Forest to City (v3) is focusing on regional afforestation and potential development of timber economy, e.g., establish manufacturing construction materials for the afforested region",
     "version": "v3",  # version of the model
     "by": "Galina Churkina",  # author's name
     "contact": "ddi.support@dalberg.com",  # author's email address
@@ -43,7 +43,7 @@ params = {
 }
 
 assumptions = {
-    "V3 (FOREST2CITY)": "focuses on regional afforestation and potential development of timber economy, e.g., establish manufacturing construction materials, for the afforested region.",
+    "Forest to City (v3)": "focuses on regional afforestation and potential development of timber economy, e.g., establish manufacturing construction materials, for the afforested region.",
     "Building:": "Storage of carbon in structures is estimated for all materials containing biomass-based carbon of a structure as provided by a user.",
     "Scenarios:": "Carbon storage and emissions were estimated for three scenarios, which reflect variabilities in carbon accumulation rates in forests (min, best guess, max) and in carbon emission coefficients of construction materials (min, mean, max).",
     "Forest timber harvest:": """A part of the harvested biomass is left on site. It usually includes leaves, branches and tree tops, which are particularly nutrient rich and after decomposition provide those nutrients to the re-growing forests. Currently the default fraction of biomass converted to roundwood is 90%. This value is based on the interview results of forest rangers in Europe and may need to be adjusted for other parts of the world.

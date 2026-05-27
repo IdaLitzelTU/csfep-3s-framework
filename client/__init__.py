@@ -4,8 +4,12 @@ import os
 
 dir = os.path.dirname(os.path.abspath("client/client"))
 # extract file names that start with letter v
+exclude = {"v1.py"}
+
 modules = [
-    os.path.splitext(_file)[0] for _file in os.listdir(dir) if _file.startswith("v")
+    os.path.splitext(_file)[0]
+    for _file in os.listdir(dir)
+    if _file.startswith("v") and _file not in exclude
 ]
 
 client = []

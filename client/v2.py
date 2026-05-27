@@ -20,7 +20,7 @@ meta = {
     "version": "2",
     "by": "Galina Churkina",
     "contact": "ddi.support@dalberg.com",
-    "description": "v2 of the model is the 'City to Forest' version, focusing on building specific infrastructures such as building, bridges, etc. from timber",
+    "description": "City to Forest (v2) is focusing on building specific infrastructures such as building, bridges, etc. from timber",
 }
 
 params = {
@@ -45,7 +45,7 @@ params = {
 
 
 assumptions = {
-    "V2 (CITY2FOREST)": 
+    "City to Forest (v2)": 
     """Focuses on building-specific infrastructures such as buildings and bridges constructed from timber. It quantifies the 3S components: Sink, Storage, and Substitution.
     Sink is the amount of carbon accumulated in the forest over the lifetime of the timber building.
     Storage is the amount of carbon stored in the timber building.
