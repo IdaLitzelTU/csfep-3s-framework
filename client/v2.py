@@ -48,7 +48,7 @@ assumptions = {
     This assumption leads to underestimation of forest losses if forest is clear cut.
     A range of carbon accumulation rates in forests is provided to capture the growth variability for different forest ages and in different climates.
     """,
-    "Forest timber harvest:": """A part of the harvested biomass is left on site. It usually includes leaves, branches and tree tops, which are particularly nutrient reach and after decomposition provide those nutrients to the re-growing forests.
+    "Forest timber harvest:": """A part of the harvested biomass is left on site. It usually includes leaves, branches and tree tops, which are particularly nutrient rich and after decomposition provide those nutrients to the re-growing forests.
     Currently the default fraction of harvested biomass left on site is 10%. This value is based on the interview results of forest rangers in Europe and may need to be adjusted for other parts of the world.
     """,
     "Manufacturing:": """Only a fraction of harvested timber goes into the constructed building and the respective carbon amounts will be stored there during the building’s lifespan.
