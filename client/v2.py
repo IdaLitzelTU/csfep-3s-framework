@@ -37,7 +37,7 @@ params = {
 }
 
 assumptions = {
-    "V2 (CITY2FOREST) ": "focuses on building specific infrastructures such as building, bridge, etc. from timber.",
+    "V2 (CITY to FOREST) ": "focuses on building specific infrastructures such as building, bridge, etc. from timber.",
     "Building:": "Storage of carbon in structures is estimated for all materials containing biomass-based carbon of a structure as provided by a user.",
     "Scenarios:": """
     Carbon storage and emissions were estimated for three scenarios, which reflect variabilities in carbon accumulation
