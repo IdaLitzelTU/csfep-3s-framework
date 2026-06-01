@@ -20,7 +20,7 @@ meta = {
     "version": "2",
     "by": "Galina Churkina",
     "contact": "ddi.support@dalberg.com",
-    "description": "City to Forest (v2) is focusing on building specific infrastructures such as building, bridges, etc. from timber",
+    "description": "CITY TO FOREST (v2) focusing on building specific infrastructures such as building, bridges, etc. from timber",
 }
 
 params = {

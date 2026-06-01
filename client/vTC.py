@@ -21,7 +21,7 @@ meta = {
     "version": "Transport Calculator v1",
     "by": "Galina Churkina",
     "contact": "ddi.support@dalberg.com",
-    "description": "vTC is a transport calculator, which can help you compute the transport emissions, to insert into the chosen model version",
+    "description": "TRANSPORT CALCULATOR (vTC) computes transport emissions, to insert into the chosen model version",
 }
 
 params = {

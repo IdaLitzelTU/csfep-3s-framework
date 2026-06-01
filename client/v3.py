@@ -17,7 +17,7 @@ forests = [x.as_dict() for x in forests] #kg/ha/yr
 db.close()
 
 meta = {
-    "description": "Forest to City (v3) is focusing on regional afforestation and potential development of timber economy, e.g., establish manufacturing construction materials for the afforested region",
+    "description": "FOREST TO CITY (v3) focusing on regional afforestation and potential development of timber economy, e.g., establish manufacturing construction materials for the afforested region",
     "version": "v3",  # version of the model
     "by": "Galina Churkina",  # author's name
     "contact": "ddi.support@dalberg.com",  # author's email address
