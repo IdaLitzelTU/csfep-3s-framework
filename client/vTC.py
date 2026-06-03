@@ -21,7 +21,7 @@ meta = {
     "version": "Transport Calculator v1",
     "by": "Galina Churkina",
     "contact": "ddi.support@dalberg.com",
-    "description": "TRANSPORT CALCULATOR (vTC) computes transport emissions, to insert into the chosen model version",
+    "description": "TRANSPORT CALCULATOR computes transport emissions, to insert into the chosen model version",
 }
 
 params = {
@@ -46,11 +46,11 @@ params = {
 }
 
 assumptions = {
-    "Transport Calculator": "allows you to compute carbon emmissions for the defined steps",
-    "Step name": "describes where your materials were moved e.g from forest to sawmill",
-    "Mode of transport": "defines the way materials were transported in this step",
-    "Mass in step": "is the mass of the materials transported in the current step",
-    "Distance in step": "is distance materials travelling using the transport in step",
+    "TRANSPORT CALCULATOR": "Allows you to compute carbon emmissions for the defined steps",
+    "Step name": "Describes where your materials were moved e.g from forest to sawmill",
+    "Mode of transport": "Defines the way materials were transported in this step",
+    "Mass in step": "Is the mass of the materials transported in the current step",
+    "Distance in step": "Is distance materials travelling using the transport in step",
 }
 
 output_description = {

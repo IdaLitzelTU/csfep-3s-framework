@@ -20,7 +20,7 @@ meta = {
     "version": "2",
     "by": "Galina Churkina",
     "contact": "ddi.support@dalberg.com",
-    "description": "CITY TO FOREST (v2) focusing on building specific infrastructures such as building, bridges, etc. from timber",
+    "description": "CITY TO FOREST focusing on building specific infrastructures such as building, bridges, etc. from timber",
 }
 
 params = {
@@ -45,7 +45,7 @@ params = {
 
 
 assumptions = {
-    "City to Forest (v2)": 
+    "CITY TO FOREST": 
     """Focuses on building-specific infrastructures such as buildings and bridges constructed from timber. It quantifies the 3S components: Sink, Storage, and Substitution.
     Sink is the amount of carbon accumulated in the forest over the lifetime of the timber building.
     Storage is the amount of carbon stored in the timber building.
@@ -55,7 +55,7 @@ assumptions = {
     """,
     "Forest timber harvest:": """A part of the harvested biomass is left on site. It usually includes leaves, branches and tree tops, which are particularly nutrient rich and after decomposition provide those nutrients to the re-growing forests. Currently the default fraction of biomass converted to roundwood is 90%. This value is based on the interview results of forest rangers in Europe and may need to be adjusted for other parts of the world.
     """,
-    "Manufacturing:": """Only a fraction of harvested timber goes into the constructed building and the respective carbon amounts will be stored there during the building’s lifespan. There are two major steps in manufacturing when various fractions of timber can be lost such as sawing and prefabrication of building’s parts. Here it is assumed that those timber fractions and associated carbon go into the scrap wood pool. The scrap wood can be used to produce various products from wood fiber insolation to wood chips or other biomass energy sources.
+    "Manufacturing:": """Only a fraction of harvested timber goes into the constructed building and the respective carbon amounts will be stored there during the building’s lifespan. There are two major steps in manufacturing when various fractions of timber can be lost such as sawing and prefabrication of building’s parts. Here it is assumed that those timber fractions and associated carbon go into the scrap wood pool. The scrap wood can be used to produce various products from wood fiber insulation to wood chips or other biomass energy sources.
     Material substitution benefits are calculated by comparing the carbon emissions from production of conventional structure to timber structure. These emissions stem from material manufacturing and transport. Carbon emissions from manufacturing the same material can vary depending on the manufacturing technologies and energy sources. This variability was captured by using a range of values for material carbon emission coefficients where availble.""",
 
 }

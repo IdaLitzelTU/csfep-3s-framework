@@ -17,7 +17,7 @@ forests = [x.as_dict() for x in forests] #kg/ha/yr
 db.close()
 
 meta = {
-    "description": "FOREST TO CITY (v3) focusing on regional afforestation and potential development of timber economy, e.g., establish manufacturing construction materials for the afforested region",
+    "description": "FOREST TO CITY focusing on regional afforestation and potential development of timber economy, e.g., establish manufacturing construction materials for the afforested region",
     "version": "v3",  # version of the model
     "by": "Galina Churkina",  # author's name
     "contact": "ddi.support@dalberg.com",  # author's email address
@@ -43,12 +43,12 @@ params = {
 }
 
 assumptions = {
-    "Forest to City (v3)": "focuses on regional afforestation and potential development of timber economy, e.g., establish manufacturing construction materials, for the afforested region.",
+    "FOREST TO CITY": "focuses on regional afforestation and potential development of timber economy, e.g., establish manufacturing construction materials, for the afforested region.",
     "Building:": "Storage of carbon in structures is estimated for all materials containing biomass-based carbon of a structure as provided by a user.",
     "Scenarios:": "Carbon storage and emissions were estimated for three scenarios, which reflect variabilities in carbon accumulation rates in forests (min, best guess, max) and in carbon emission coefficients of construction materials (min, mean, max).",
     "Forest timber harvest:": """A part of the harvested biomass is left on site. It usually includes leaves, branches and tree tops, which are particularly nutrient rich and after decomposition provide those nutrients to the re-growing forests. Currently the default fraction of biomass converted to roundwood is 90%. This value is based on the interview results of forest rangers in Europe and may need to be adjusted for other parts of the world.
     """,
-    "Manufacturing:": """Only a fraction of harvested timber goes into the constructed building and the respective carbon amounts will be stored there during the building’s lifespan. There are two major steps in manufacturing when various fractions of timber can be lost such as sawing and prefabrication of building’s parts. Here it is assumed that those timber fractions and associated carbon go into the scrap wood pool. The scrap wood can be used to produce various products from wood fiber insolation to wood chips or other biomass energy sources.
+    "Manufacturing:": """Only a fraction of harvested timber goes into the constructed building and the respective carbon amounts will be stored there during the building’s lifespan. There are two major steps in manufacturing when various fractions of timber can be lost such as sawing and prefabrication of building’s parts. Here it is assumed that those timber fractions and associated carbon go into the scrap wood pool. The scrap wood can be used to produce various products from wood fiber insulation to wood chips or other biomass energy sources.
     Material substitution benefits are calculated by comparing the carbon emissions from production of conventional structure to timber structure. These emissions stem from material manufacturing and transport. Carbon emissions from manufacturing the same material can vary depending on the manufacturing technologies and energy sources. This variability was captured by using a range of values for material carbon emission coefficients where availble. """,
 }
 output_description = {
