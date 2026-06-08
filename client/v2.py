@@ -200,6 +200,7 @@ input = [
                     "description": f"{x['material']} mass",
                     "type": "number",
                     "default": "None",
+                    "unit": "kg",
                     "min": 0.1,
                     "max": 1000000,
                 }
