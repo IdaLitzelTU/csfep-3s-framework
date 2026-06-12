@@ -6,6 +6,12 @@ import json
 def get_materials(db: Session):
     return db.query(table.Material).all()
 
+def get_materials2(db: Session):
+    return db.query(table.Material2).all()
+
+def get_energy_sources(db: Session):
+    return db.query(table.Energy_Sources).all()
+
 
 def get_forests(db: Session):
     return db.query(table.Forest).all()
@@ -93,11 +99,29 @@ def cast_to_array(value):
 
 def cast_to_dict(value):
     """
-    Assumption: All dicts store float values.
+    Sicherer Parser für flache und verschachtelte Gruppen-Strukturen.
     """
-    dic = json.loads(value)
+ 
+    if isinstance(value, str):
+        dic = json.loads(value)
+    else:
+        dic = value
+
     for id, val in dic.items():
-        dic[id] = cast_to_type(val, type="number")
+        if isinstance(val, dict):
+            processed_sub_dict = {}
+            for sub_key, sub_val in val.items():
+                if sub_key == "mass":  # Oder allgemein auf Zahlen prüfen
+                    processed_sub_dict[sub_key] = float(sub_val) if sub_val is not None else 0.0
+                else:
+                    processed_sub_dict[sub_key] = sub_val
+            dic[id] = processed_sub_dict
+        else:
+            # Fallback für die alten, flachen Float-Dicionaries
+            try:
+                dic[id] = float(val) if val is not None else 0.0
+            except (ValueError, TypeError):
+                dic[id] = val # Falls es ein String oder null ist    
     return dic
 
 

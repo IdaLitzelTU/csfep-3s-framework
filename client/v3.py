@@ -12,8 +12,12 @@ if logger.hasHandlers():
 db = next(get_db())
 materials = cursor.get_materials(db=db)
 materials = [x.as_dict() for x in materials]
+materials2 = cursor.get_materials2(db=db)
+materials2 = [x.as_dict() for x in materials2]
 forests = cursor.get_forests(db=db)
 forests = [x.as_dict() for x in forests] #kg/ha/yr
+energy_sources = cursor.get_energy_sources(db=db)
+energy_sources = [x.as_dict() for x in energy_sources]
 db.close()
 
 meta = {
@@ -23,19 +27,36 @@ meta = {
     "contact": "ddi.support@dalberg.com",  # author's email address
 }
 
+cf_log = 0.5
+
 params = {
-    "cf_log": 0.5,
+    "cf_log": cf_log,
     "c2co2": 3.67,
     "k_truck": {"min": 0.17398, "best": 0.36024, "max": 0.55731},
     "k_sea": {"min": 0.013155, "best": 0.013155, "max": 0.013155},
     "c_material": {
         x["id"]: {
-            "min": x["min"],
-            "best": x["best"],
-            "max": x["max"],
-            "istimber": x["istimber"],
+            "min_co2e": x["min_co2e"],
+            "best_co2e": x["best_co2e"],
+            "max_co2e": x["max_co2e"],
+            "min_manuf_eec": x["min_manuf_eec"],
+            "best_manuf_eec": x["best_manuf_eec"],
+            "max_manuf_eec": x["max_manuf_eec"],
+            "min_sourcing_eec": x["min_sourcing_eec"],
+            "best_sourcing_eec": x["best_sourcing_eec"],
+            "max_sourcing_eec": x["max_sourcing_eec"],
+            "d_green": x["d_green"],
+            "d_dry": x["d_dry"],
+            "c_content": (
+                x["c_content"]
+                if x["c_content"] is not None
+                else cf_log
+                if x["is_timber"]
+                else 0
+            ),
+            "is_timber": x["is_timber"],
         }
-        for x in materials
+        for x in materials2
     },
     "c_acc_forest": {
         x["id"]: {"min": x["min"], "best": x["best"], "max": x["max"]} for x in forests
@@ -213,12 +234,29 @@ input = [
                     "name": x["id"],
                     "display_name": x["material"],
                     "description": f"{x['material']} mass",
-                    "type": "number",
+                    "type": "number2",
                     "default": "None",
                     "unit": "kg",
+                    "min": 0.1,
+                    "max": 1000000,
+                    "has_moisture_option": (
+                        x["d_dry"] is not None and
+                        x["d_green"] is not None
+                    ),
+                    "has_sourcing_option":(
+                        x["min_sourcing_eec"] is not None and
+                        x["best_sourcing_eec"] is not None and
+                        x["max_sourcing_eec"] is not None
+                    ),
+                    "has_manufactoring_option":(
+                        x["min_manuf_eec"] is not None and
+                        x["best_manuf_eec"] is not None and
+                        x["max_manuf_eec"] is not None
+                    ),
+                    "energy_sources": energy_sources,
                 }
-                for x in materials
-                if not x["istimber"]
+                for x in materials2
+                if not x["is_timber"]
             ]
         ),
     },
@@ -235,12 +273,29 @@ input = [
                     "name": x["id"],
                     "display_name": x["material"],
                     "description": f"{x['material']} mass",
-                    "type": "number",
+                    "type": "number2",
                     "default": "None",
                     "unit": "kg",
+                    "min": 0.1,
+                    "max": 1000000,
+                    "has_moisture_option": (
+                        x["d_dry"] is not None and
+                        x["d_green"] is not None
+                    ),
+                    "has_sourcing_option":(
+                        x["min_sourcing_eec"] is not None and
+                        x["best_sourcing_eec"] is not None and
+                        x["max_sourcing_eec"] is not None
+                    ),
+                    "has_manufactoring_option":(
+                        x["min_manuf_eec"] is not None and
+                        x["best_manuf_eec"] is not None and
+                        x["max_manuf_eec"] is not None
+                    ),
+                    "energy_sources": energy_sources,
                 }
-                for x in materials
-                if x["istimber"]
+                for x in materials2
+                if x["is_timber"]
             ]
         ),
     },
@@ -269,9 +324,26 @@ input = [
                     "type": "number",
                     "default": "None",
                     "unit": "kg",
+                    "min": 0.1,
+                    "max": 1000000,
+                    "has_moisture_option": (
+                        x["d_dry"] is not None and
+                        x["d_green"] is not None
+                    ),
+                    "has_sourcing_option":(
+                        x["min_sourcing_eec"] is not None and
+                        x["best_sourcing_eec"] is not None and
+                        x["max_sourcing_eec"] is not None
+                    ),
+                    "has_manufactoring_option":(
+                        x["min_manuf_eec"] is not None and
+                        x["best_manuf_eec"] is not None and
+                        x["max_manuf_eec"] is not None
+                    ),
+                    "energy_sources": energy_sources,
                 }
-                for x in materials
-                if not x["istimber"]
+                for x in materials2
+                if not x["is_timber"]
             ]
         ),
     },
@@ -291,9 +363,27 @@ input = [
                     "type": "number",
                     "default": "None",
                     "unit": "kg",
+                    "min": 0.1,
+                    "max": 1000000,
+                    "has_moisture_option": (
+                        x["d_dry"] is not None and
+                        x["d_green"] is not None
+                    ),
+                    "has_sourcing_option":(
+                        x["min_sourcing_eec"] is not None and
+                        x["best_sourcing_eec"] is not None and
+                        x["max_sourcing_eec"] is not None
+                    ),
+                    "has_manufactoring_option":(
+                        x["min_manuf_eec"] is not None and
+                        x["best_manuf_eec"] is not None and
+                        x["max_manuf_eec"] is not None
+                    ),
+                    "energy_sources": energy_sources,
                 }
-                for x in materials
-                if x["istimber"]
+                
+                for x in materials2
+                if x["is_timber"]
             ]
         ),
     },
@@ -310,10 +400,13 @@ input = [
 
 
 def run(data, params, *args, **kwargs):
-    # How much carbon required per building?
+    # kg C stored in all materials in the timber construction (dry)
+    # kg C stored in all materials in the timber construction (dry)
     c_stored_in_building = csfep_3s.c_stored_in_building(
-        data["timber_biomass_materials"], **data, **params
-    )
+            data["timber_biomass_materials"], **data, **params)# kgC 
+    + csfep_3s.c_stored_in_building(
+            data["timber_mineral_materials"], **data, **params)# kgC
+
    # calculate c needed in:  building <- materials <- roundwood <- forest
     c_stored_in_materials = c_stored_in_building  / (data["manufacturing_prefabricated_used"] * 0.01)
     c_stored_in_roundwood = c_stored_in_materials / (data["manufacturing_wood_used"] * 0.01)
@@ -387,14 +480,11 @@ def run(data, params, *args, **kwargs):
 
         ## Substitution
         # conventional
-        c_emitted_conventional_manufacturing = (
-            csfep_3s.emitted_manufacturing(
-                scenario, data["conventional_biomass_materials"], **params
-            )
-            + csfep_3s.emitted_manufacturing(
-                scenario, data["conventional_mineral_materials"], **params
-            )
-        ) * number_of_building_possible
+        c_emitted_conventional_manufacturing = (csfep_3s.emitted_manufacturing(
+            scenario, data["conventional_biomass_materials"], energy_sources, **params
+        ) + csfep_3s.emitted_manufacturing(
+            scenario, data["conventional_mineral_materials"],energy_sources, **params
+        ) ) * number_of_building_possible
 
         c_emitted_conventional_transporting = (
             data["c_emitted_transport_conventional"][
@@ -403,14 +493,13 @@ def run(data, params, *args, **kwargs):
             * number_of_building_possible
         )
         # timber based
-        c_emitted_timber_manufacturing = (
-            csfep_3s.emitted_manufacturing(
-                scenario, data["timber_biomass_materials"], **params
-            )
-            + csfep_3s.emitted_manufacturing(
-                scenario, data["timber_mineral_materials"], **params
-            )
-        ) * number_of_building_possible
+        c_emitted_timber_manufacturing = (csfep_3s.emitted_manufacturing(
+            scenario, data["timber_biomass_materials"], energy_sources, **params
+        ) + csfep_3s.emitted_manufacturing(
+            scenario, data["timber_mineral_materials"], energy_sources, **params
+        ) ) * number_of_building_possible
+
+        print("c timber:",c_emitted_timber_manufacturing)
 
         c_emitted_timber_transporting = (
             data["c_emitted_transport_timber"][csfep_3s.get_scenario_index(scenario)]

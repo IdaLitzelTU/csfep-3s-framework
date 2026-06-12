@@ -75,7 +75,7 @@ def get_model_information(version: str):
 @app.post("/run/{version}")
 def run_model_version(version: str, body: str):
     """Runs the specified model version and returns the output of the model"""
-    logger.info(f"Running model {version} with {body}")
+    logger.info(f"Running model {version} with body")
     model = model_export.get(version)
 
     if model:
@@ -84,7 +84,7 @@ def run_model_version(version: str, body: str):
         results = model_executable(
             data=cursor.cast_dict(body), params=model.get("params")
         )
-        logger.info(f"Model results: {results}")
+        #logger.info(f"Model results: {results}")
     else:
         logger.debug(
             f"Cannot find version {version}. Only following version are available {', '.join(list(model_export.keys()))}"
@@ -101,7 +101,7 @@ def run_model_version(version: str, body: str):
 def run_model_version_with_dataset_id(
     version: str, dataset: int, db: Session = Depends(get_db)
 ):
-    logger.info(f"Running model version {version} with the dataset ID {dataset}")
+    logger.info(f"Running model version {version} with the dataset ID ")
     body = cursor.get_dataset_data_object(db=db, id=dataset)
     return run_model_version(version=version, body=body)
 

@@ -45,7 +45,7 @@ def to_coef(x):
     return x / 100
 
 
-def c_stored_in_building(materials, *, cf_log, c_material, **kwargs):
+def c_stored_in_building(materials,*, c_material, **kwargs):
     """
     This function calculates amount of carbon stored in a building and
     amount of wood to be harvested for this building [t C]
@@ -53,10 +53,12 @@ def c_stored_in_building(materials, *, cf_log, c_material, **kwargs):
 
     try:
         total = 0
-        for id, value in materials.items():  # materials is { concrete: value }
-            if c_material.get(id, {"istimber": False}).get("istimber"):
-                total = total + value
-        total = total * cf_log
+        for material, values in materials.items():  # materials is { concrete: {'mass': 53, 'state': 'dry',...}} }
+            # calculate mass of dry timber m_dry = (m_green * d_dry) / d_green
+            if values["state"] == "fresh" and c_material[material]["d_green"] and c_material[material]["d_dry"]:
+                values["mass"] = (values["mass"] * c_material[material]["d_dry"]) / c_material[material]["d_green"]
+
+            total = total + (values["mass"] * c_material[material]["c_content"] )
         return total
     except Exception as e:
         logger.exception(e)
@@ -65,25 +67,44 @@ def c_stored_in_building(materials, *, cf_log, c_material, **kwargs):
 def total_mass(materials):
     try:
         total_m = sum(materials.values())
-        logger.info(f"Total building mass: {total_m} tC")
+        #logger.info(f"Total building mass: {total_m} tC")
         return total_m
     except Exception as e:
         logger.exception(e)
 
 
-def emitted_manufacturing(scenario, materials, *, c_material, c2co2, **kwargs):
+def emitted_manufacturing(scenario, materials, energy_sources, *, c_material, c2co2, **kwargs):
     """
-    This function calculates amount of carbon stored in a building and
-    amount of wood to be harvested for this building [t C]
+    Calculates the C emmitted by manufactoring and sourcing of the materials 
+    dependent on the energy source used for sourcing and manufactoring [kg C]
     """
+    co2e = scenario + "_co2e"
+    manuf_eec = scenario + "_manuf_eec"
+    sourcing_eec = scenario + "_sourcing_eec"
     try:
         total = 0
-        for key, mass in materials.items():
-            co2_in_material = c_material[key]  # co2/kg
-            # kgco2/kg * kg = kgco2
-            # before: m2 * tCo2 / m2 => tCo2 now: kg, kgCo2/kg -> kg * kgCo2 / kg => kgCo2 / 1000 -> tCo2
-            total = total + (co2_in_material[scenario] * mass)
-        logger.info(f"Building carbon stored: {total} kgC")
+        for material, values in materials.items():
+            # calculate c02 in material if co2 coeffi exist
+            if c_material[material][co2e]:
+                co2_in_material = c_material[material][co2e] * values["mass"] # co2/kg
+
+            # calculate C02 in material if eec coeffi exist
+            else :
+                co2_manuf = 0
+                co2_sourcing = 0 
+                # if material was manufactored
+                if values["manufacturing_energy_id"]:
+                    # kgCO2 = kg * MJ/kg * kgCO2/MJ
+                    co2_manuf = values["mass"] * c_material[material][manuf_eec] * next(x["emission_factor"] for x in energy_sources if int(x["id"]) == int(values["manufacturing_energy_id"]))
+                # if material was sourced
+                if values["sourcing_energy_id"]:
+                    # kgCO2 = kg * MJ/kg * kgCO2/MJ
+                    co2_sourcing = values["mass"] * c_material[material][sourcing_eec] * next(x["emission_factor"] for x in energy_sources if int(x["id"]) == int(values["sourcing_energy_id"]))
+                
+                co2_in_material = co2_sourcing + co2_manuf
+
+            total = total + co2_in_material
+        #logger.info(f"Building carbon stored: {total/ c2co2} kgC")
         return total / c2co2
     except Exception as e:
         logger.exception(e)
@@ -93,9 +114,6 @@ def emitted_transporting(mass, distance, coeff, *, c2co2, **kwargs):
     try:
         # m -> t * Km * (kg * C02) / t*km / c02/c
         c_emitted = ((mass / 1000) * distance * coeff) / c2co2 #kgC
-        logger.info(
-            f"Carbon emissions during transport stage of construction materials [tC] assuming all emissions are CO2: {c_emitted}"
-        )
         return c_emitted
     except Exception as e:
         logger.exception(e)
@@ -106,7 +124,6 @@ def wood_demand(carbon_bld, *, wood_used, material_used, **kwargs):
     # tonne of C total amount of carbon needed to build building including processing losses
     try:
         w = carbon_bld / wood_used / material_used
-        logger.info(f" Wood demand: {w}")
         return w
     except Exception as e:
         logger.exception(e)
@@ -126,7 +143,6 @@ def years_to_accumulate(
     try:
         # change harvest intensity to fraction
         yr = carbon_harv / carbon_accumulated_in_forest_per_year(scenario, intensity, **kwargs)
-        logger.info(f" yr: {yr}")
         return yr
     except Exception as e:
         logger.exception(e)
@@ -151,11 +167,8 @@ def carbon_accumulated_in_forest_per_year(
     try:
         if not intensity:
             forest_harvest_intensity = 100
-            logger.info(f" carbon_acc: {intensity}")
         c_acc_rate = forest_c_acc_rate[get_scenario_index(scenario)]
         c_acc = c_acc_rate * forest_harvest_area  * (forest_harvest_intensity * 0.01)
-        
-        logger.info(f" carbon_acc: {intensity}, {c_acc}")
         return c_acc
     except Exception as e:
         logger.exception(e)

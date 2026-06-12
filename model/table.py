@@ -53,6 +53,31 @@ class Material(Base, Serializable):
     max = Column(Float)
     istimber = Column(Boolean)
 
+class Material2(Base, Serializable):
+    __tablename__ = "materials2"
+    id = Column(String, primary_key=True)
+    material = Column(String)
+    min_co2e = Column(Float)
+    best_co2e = Column(Float)
+    max_co2e = Column(Float)
+    min_manuf_eec = Column(Float)
+    best_manuf_eec = Column(Float)
+    max_manuf_eec = Column(Float)
+    min_sourcing_eec = Column(Float)
+    best_sourcing_eec = Column(Float)
+    max_sourcing_eec = Column(Float)
+    d_green = Column(Float)
+    d_dry = Column(Float)
+    c_content= Column(Float)
+    reference = Column(String)
+    is_timber = Column(Boolean)
+
+class Energy_Sources(Base, Serializable):
+    __tablename__ = "energy_sources"
+    id = Column(String, primary_key=True)
+    source = Column(String)
+    emission_factor = Column(Float)
+    reference = Column(String)
 
 class Forest(Base, Serializable):
     __tablename__ = "forests"

@@ -12,9 +12,15 @@ if logger.hasHandlers():
 db = next(get_db())
 materials = cursor.get_materials(db=db)
 materials = [x.as_dict() for x in materials]
+materials2 = cursor.get_materials2(db=db)
+materials2 = [x.as_dict() for x in materials2]
 forests = cursor.get_forests(db=db)
 forests = [x.as_dict() for x in forests]
+energy_sources = cursor.get_energy_sources(db=db)
+energy_sources = [x.as_dict() for x in energy_sources]
 db.close()
+
+
 
 meta = {
     "version": "2",
@@ -23,20 +29,36 @@ meta = {
     "description": "CITY TO FOREST focusing on building specific infrastructures such as building, bridges, etc. from timber",
 }
 
+cf_log = 0.5
+
 params = {
-    "cf_log": 0.5,
+    "cf_log": cf_log,
     "c2co2": 3.67,
-    # TODO: move transport to DB?
-    "k_truck": {"min": 0.17398, "best": 0.36024, "max": 0.55731}, #[t CO2 eq/t material]
+    "k_truck": {"min": 0.17398, "best": 0.36024, "max": 0.55731},
     "k_sea": {"min": 0.013155, "best": 0.013155, "max": 0.013155},
     "c_material": {
         x["id"]: {
-            "min": x["min"],
-            "best": x["best"],
-            "max": x["max"],
-            "istimber": x["istimber"],
+            "min_co2e": x["min_co2e"],
+            "best_co2e": x["best_co2e"],
+            "max_co2e": x["max_co2e"],
+            "min_manuf_eec": x["min_manuf_eec"],
+            "best_manuf_eec": x["best_manuf_eec"],
+            "max_manuf_eec": x["max_manuf_eec"],
+            "min_sourcing_eec": x["min_sourcing_eec"],
+            "best_sourcing_eec": x["best_sourcing_eec"],
+            "max_sourcing_eec": x["max_sourcing_eec"],
+            "d_green": x["d_green"],
+            "d_dry": x["d_dry"],
+            "c_content": (
+                x["c_content"]
+                if x["c_content"] is not None
+                else cf_log
+                if x["is_timber"]
+                else 0
+            ),
+            "is_timber": x["is_timber"],
         }
-        for x in materials
+        for x in materials2
     },
     "c_acc_forest": {
         x["id"]: {"min": x["min"], "best": x["best"], "max": x["max"]} for x in forests
@@ -123,9 +145,24 @@ input = [
                     "unit": "kg",
                     "min": 0.1,
                     "max": 1000000,
+                    "has_moisture_option": (
+                        x["d_dry"] is not None and
+                        x["d_green"] is not None
+                    ),
+                    "has_sourcing_option":(
+                        x["min_sourcing_eec"] is not None and
+                        x["best_sourcing_eec"] is not None and
+                        x["max_sourcing_eec"] is not None
+                    ),
+                    "has_manufactoring_option":(
+                        x["min_manuf_eec"] is not None and
+                        x["best_manuf_eec"] is not None and
+                        x["max_manuf_eec"] is not None
+                    ),
+                    "energy_sources": energy_sources,
                 }
-                for x in materials
-                if not x["istimber"]
+                for x in materials2
+                if not x["is_timber"]
             ]
         ),
     },
@@ -144,11 +181,28 @@ input = [
                     "description": f"{x['material']} mass",
                     "type": "number",
                     "default": "None",
+                    "unit": "kg",
                     "min": 0.1,
                     "max": 1000000,
+                    "has_moisture_option": (
+                        x["d_dry"] is not None and
+                        x["d_green"] is not None
+                    ),
+                    "has_sourcing_option":(
+                        x["min_sourcing_eec"] is not None and
+                        x["best_sourcing_eec"] is not None and
+                        x["max_sourcing_eec"] is not None
+                    ),
+                    "has_manufactoring_option":(
+                        x["min_manuf_eec"] is not None and
+                        x["best_manuf_eec"] is not None and
+                        x["max_manuf_eec"] is not None
+                    ),
+                    "energy_sources": energy_sources,
                 }
-                for x in materials
-                if x["istimber"]
+                
+                for x in materials2
+                if x["is_timber"]
             ]
         ),
     },
@@ -174,14 +228,29 @@ input = [
                     "name": x["id"],
                     "display_name": x["material"],
                     "description": f"{x['material']} mass",
-                    "type": "number",
+                    "type": "number2",
                     "default": "None",
                     "unit": "kg",
                     "min": 0.1,
                     "max": 1000000,
+                    "has_moisture_option": (
+                        x["d_dry"] is not None and
+                        x["d_green"] is not None
+                    ),
+                    "has_sourcing_option":(
+                        x["min_sourcing_eec"] is not None and
+                        x["best_sourcing_eec"] is not None and
+                        x["max_sourcing_eec"] is not None
+                    ),
+                    "has_manufactoring_option":(
+                        x["min_manuf_eec"] is not None and
+                        x["best_manuf_eec"] is not None and
+                        x["max_manuf_eec"] is not None
+                    ),
+                    "energy_sources": energy_sources,
                 }
-                for x in materials
-                if not x["istimber"]
+                for x in materials2
+                if not x["is_timber"]
             ]
         ),
     },
@@ -198,14 +267,29 @@ input = [
                     "name": x["id"],
                     "display_name": x["material"],
                     "description": f"{x['material']} mass",
-                    "type": "number",
+                    "type": "number2",
                     "default": "None",
                     "unit": "kg",
                     "min": 0.1,
                     "max": 1000000,
+                    "has_moisture_option": (
+                        x["d_dry"] is not None and
+                        x["d_green"] is not None
+                    ),
+                    "has_sourcing_option":(
+                        x["min_sourcing_eec"] is not None and
+                        x["best_sourcing_eec"] is not None and
+                        x["max_sourcing_eec"] is not None
+                    ),
+                    "has_manufactoring_option":(
+                        x["min_manuf_eec"] is not None and
+                        x["best_manuf_eec"] is not None and
+                        x["max_manuf_eec"] is not None
+                    ),
+                    "energy_sources": energy_sources,
                 }
-                for x in materials
-                if x["istimber"]
+                for x in materials2
+                if x["is_timber"]
             ]
         ),
     },
@@ -304,14 +388,14 @@ input = [
 ]
 
 
-def run(data, params, *args, **kwargs):
-    # Calculate carbon storage in timber building and
-    # carbon needed to be extracted from forest or demand for carbon
 
-    # t C stored in timber materials in the construction
+def run(data, params, *args, **kwargs):
+
+    # kg C stored in all materials in the timber construction (dry)
     c_stored_in_building = csfep_3s.c_stored_in_building(
-            data["timber_biomass_materials"], **data, **params
-    )# kgC
+            data["timber_biomass_materials"], **data, **params)# kgC 
+    + csfep_3s.c_stored_in_building(
+            data["timber_mineral_materials"], **data, **params)# kgC
 
 
     # calculate needed c in:  building <- materials <- roundwood <- forest
@@ -329,14 +413,6 @@ def run(data, params, *args, **kwargs):
     
     c_stored_in_scrap = scrap_roundwood + scrap_material
     
-    # forest storage is not any longer part of the STORAGE output 
-    # calculate forest storage
-    #c_in_forest_before_harvest = c_needed_for_building / (data["forest_harvest_intensity"] * 0.01)
-    #c_stored_in_forest = c_in_forest_before_harvest - c_needed_for_building
-    #logger.info(f"c_stored_in_forest: {c_stored_in_forest}")
-
-
-
     constants = {
         "Accumulated": 0,  # c_accum_forest
         "Buildings floor area m2": data["building_floor_area"],
@@ -388,16 +464,16 @@ def run(data, params, *args, **kwargs):
 
         # conventional building
         c_emitted_conventional = csfep_3s.emitted_manufacturing(
-            i, data["conventional_biomass_materials"], **params
+            i, data["conventional_biomass_materials"], energy_sources, **params
         ) + csfep_3s.emitted_manufacturing(
-            i, data["conventional_mineral_materials"], **params
+            i, data["conventional_mineral_materials"],energy_sources, **params
         )
 
         # timber building
         c_emitted_timber = csfep_3s.emitted_manufacturing(
-            i, data["timber_biomass_materials"], **params
+            i, data["timber_biomass_materials"], energy_sources, **params
         ) + csfep_3s.emitted_manufacturing(
-            i, data["timber_mineral_materials"], **params
+            i, data["timber_mineral_materials"], energy_sources, **params
         )
 
         # carbon substitution
@@ -436,7 +512,6 @@ def run(data, params, *args, **kwargs):
 
         # carbon storage
         scoped_data["C2Scrap"] = round(c_stored_in_scrap / 1000, round_decimal)
-        #scoped_data["C2Forest"] = round(c_stored_in_forest / 1000, round_decimal)
         scoped_data["C2Buildings"] = round(c_stored_in_building / 1000, round_decimal)
 
         output["tC"][scenario_name] = scoped_data
