@@ -27,7 +27,7 @@ meta = {
     "contact": "ddi.support@dalberg.com",  # author's email address
 }
 
-cf_log = 0.5
+cf_log= 50
 
 params = {
     "cf_log": cf_log,
@@ -248,7 +248,7 @@ input = [
                         x["best_sourcing_eec"] is not None and
                         x["max_sourcing_eec"] is not None
                     ),
-                    "has_manufactoring_option":(
+                    "has_manufacturing_option":(
                         x["min_manuf_eec"] is not None and
                         x["best_manuf_eec"] is not None and
                         x["max_manuf_eec"] is not None
@@ -287,7 +287,7 @@ input = [
                         x["best_sourcing_eec"] is not None and
                         x["max_sourcing_eec"] is not None
                     ),
-                    "has_manufactoring_option":(
+                    "has_manufacturing_option":(
                         x["min_manuf_eec"] is not None and
                         x["best_manuf_eec"] is not None and
                         x["max_manuf_eec"] is not None
@@ -335,7 +335,7 @@ input = [
                         x["best_sourcing_eec"] is not None and
                         x["max_sourcing_eec"] is not None
                     ),
-                    "has_manufactoring_option":(
+                    "has_manufacturing_option":(
                         x["min_manuf_eec"] is not None and
                         x["best_manuf_eec"] is not None and
                         x["max_manuf_eec"] is not None
@@ -374,7 +374,7 @@ input = [
                         x["best_sourcing_eec"] is not None and
                         x["max_sourcing_eec"] is not None
                     ),
-                    "has_manufactoring_option":(
+                    "has_manufacturing_option":(
                         x["min_manuf_eec"] is not None and
                         x["best_manuf_eec"] is not None and
                         x["max_manuf_eec"] is not None
@@ -400,17 +400,17 @@ input = [
 
 
 def run(data, params, *args, **kwargs):
-    # kg C stored in all materials in the timber construction (dry)
-    # kg C stored in all materials in the timber construction (dry)
+    
+    # kg C stored in timber materials in the timber construction (dry)
     c_stored_in_building = csfep_3s.c_stored_in_building(
             data["timber_biomass_materials"], **data, **params)# kgC 
-    + csfep_3s.c_stored_in_building(
-            data["timber_mineral_materials"], **data, **params)# kgC
+    #+ csfep_3s.c_stored_in_building(
+    #        data["timber_mineral_materials"], **data, **params)# kgC
 
    # calculate c needed in:  building <- materials <- roundwood <- forest
     c_stored_in_materials = c_stored_in_building  / (data["manufacturing_prefabricated_used"] * 0.01)
     c_stored_in_roundwood = c_stored_in_materials / (data["manufacturing_wood_used"] * 0.01)
-    c_needed_for_building = c_stored_in_roundwood / (data["biomass_used"]*0.01)  # kgC stored in harvested trees
+    c_needed_for_building = c_stored_in_roundwood / (data["biomass_used"] * 0.01)  # kgC stored in harvested trees
 
     # calculate scrap wood for one building
     (scrap_roundwood, scrap_material) = csfep_3s.calculate_scrap(

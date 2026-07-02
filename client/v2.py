@@ -29,7 +29,7 @@ meta = {
     "description": "CITY TO FOREST focusing on building specific infrastructures such as building, bridges, etc. from timber",
 }
 
-cf_log = 0.5
+cf_log = 50
 
 params = {
     "cf_log": cf_log,
@@ -68,7 +68,8 @@ params = {
 
 assumptions = {
     "CITY TO FOREST": 
-    """Focuses on building-specific infrastructures such as buildings and bridges constructed from timber. It quantifies the 3S components: Sink, Storage, and Substitution.
+    """Focuses on building-specific infrastructures such as buildings and bridges constructed from timber. 
+    It quantifies the 3S components: Sink, Storage, and Substitution.
     Sink is the amount of carbon accumulated in the forest over the lifetime of the timber building.
     Storage is the amount of carbon stored in the timber building.
     Substitution is the amount of carbon emissions avoided by using timber instead of conventional mineral-based construction materials.,
@@ -154,7 +155,7 @@ input = [
                         x["best_sourcing_eec"] is not None and
                         x["max_sourcing_eec"] is not None
                     ),
-                    "has_manufactoring_option":(
+                    "has_manufacturing_option":(
                         x["min_manuf_eec"] is not None and
                         x["best_manuf_eec"] is not None and
                         x["max_manuf_eec"] is not None
@@ -178,7 +179,7 @@ input = [
                 {
                     "name": x["id"],
                     "display_name": x["material"],
-                    "description": f"{x['material']} mass",
+                    "description": f"Mass of {x['material']}",
                     "type": "number",
                     "default": "None",
                     "unit": "kg",
@@ -193,7 +194,7 @@ input = [
                         x["best_sourcing_eec"] is not None and
                         x["max_sourcing_eec"] is not None
                     ),
-                    "has_manufactoring_option":(
+                    "has_manufacturing_option":(
                         x["min_manuf_eec"] is not None and
                         x["best_manuf_eec"] is not None and
                         x["max_manuf_eec"] is not None
@@ -242,7 +243,7 @@ input = [
                         x["best_sourcing_eec"] is not None and
                         x["max_sourcing_eec"] is not None
                     ),
-                    "has_manufactoring_option":(
+                    "has_manufacturing_option":(
                         x["min_manuf_eec"] is not None and
                         x["best_manuf_eec"] is not None and
                         x["max_manuf_eec"] is not None
@@ -281,7 +282,7 @@ input = [
                         x["best_sourcing_eec"] is not None and
                         x["max_sourcing_eec"] is not None
                     ),
-                    "has_manufactoring_option":(
+                    "has_manufacturing_option":(
                         x["min_manuf_eec"] is not None and
                         x["best_manuf_eec"] is not None and
                         x["max_manuf_eec"] is not None
@@ -391,11 +392,11 @@ input = [
 
 def run(data, params, *args, **kwargs):
 
-    # kg C stored in all materials in the timber construction (dry)
+    # kg C stored in timber materials in the timber construction (dry)
     c_stored_in_building = csfep_3s.c_stored_in_building(
             data["timber_biomass_materials"], **data, **params)# kgC 
-    + csfep_3s.c_stored_in_building(
-            data["timber_mineral_materials"], **data, **params)# kgC
+#+ csfep_3s.c_stored_in_building(
+            #data["timber_mineral_materials"], **data, **params)# kgC
 
 
     # calculate needed c in:  building <- materials <- roundwood <- forest
@@ -417,7 +418,7 @@ def run(data, params, *args, **kwargs):
         "Accumulated": 0,  # c_accum_forest
         "Buildings floor area m2": data["building_floor_area"],
         "Number of Buildings": 1,  # number_of_buildings = data["building_number"]
-        "Harvested": round(c_needed_for_building / 1000, 0),
+        "Harvested": round(c_needed_for_building / 1000, 2),
     }
 
     # RESULTS
@@ -460,13 +461,13 @@ def run(data, params, *args, **kwargs):
         c_recovered_forest_with_intensity = csfep_3s.forest_recov(i, intensity = True, **data, **params)
 
 
-        # manufactoring emissions for materials of both buildings:
+        # manufactoring emissions for fresh materials of both buildings:
 
         # conventional building
         c_emitted_conventional = csfep_3s.emitted_manufacturing(
             i, data["conventional_biomass_materials"], energy_sources, **params
         ) + csfep_3s.emitted_manufacturing(
-            i, data["conventional_mineral_materials"],energy_sources, **params
+            i, data["conventional_mineral_materials"], energy_sources, **params
         )
 
         # timber building

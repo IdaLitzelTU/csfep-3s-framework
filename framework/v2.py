@@ -56,9 +56,10 @@ def c_stored_in_building(materials,*, c_material, **kwargs):
         for material, values in materials.items():  # materials is { concrete: {'mass': 53, 'state': 'dry',...}} }
             # calculate mass of dry timber m_dry = (m_green * d_dry) / d_green
             if values["state"] == "fresh" and c_material[material]["d_green"] and c_material[material]["d_dry"]:
-                values["mass"] = (values["mass"] * c_material[material]["d_dry"]) / c_material[material]["d_green"]
-
-            total = total + (values["mass"] * c_material[material]["c_content"] )
+                values_mass = (values["mass"] * c_material[material]["d_dry"]) / c_material[material]["d_green"]
+            else: values_mass = values["mass"]
+            total = total + (values_mass * c_material[material]["c_content"] * 0.01)
+            #print("c_stored", material, (values_mass * c_material[material]["c_content"] ),values_mass , c_material[material]["c_content"] )
         return total
     except Exception as e:
         logger.exception(e)
@@ -75,7 +76,7 @@ def total_mass(materials):
 
 def emitted_manufacturing(scenario, materials, energy_sources, *, c_material, c2co2, **kwargs):
     """
-    Calculates the C emmitted by manufactoring and sourcing of the materials 
+    Calculates the C emmitted by manufactoring and sourcing of fresh materials 
     dependent on the energy source used for sourcing and manufactoring [kg C]
     """
     co2e = scenario + "_co2e"
@@ -84,28 +85,40 @@ def emitted_manufacturing(scenario, materials, energy_sources, *, c_material, c2
     try:
         total = 0
         for material, values in materials.items():
-            # calculate c02 in material if co2 coeffi exist
-            if c_material[material][co2e]:
-                co2_in_material = c_material[material][co2e] * values["mass"] # co2/kg
+            print("material", material , values["state"])
+            # calculate fresh mass of timber m_green = (m_dry * d_green) / d_dry
+            if values["state"] == "dry" and c_material[material]["d_green"] and c_material[material]["d_dry"]:
+                mass_fresh = (values["mass"] * c_material[material]["d_green"]) / c_material[material]["d_dry"]
+            else: mass_fresh = values["mass"]
 
-            # calculate C02 in material if eec coeffi exist
+            # calculate c in material if c coeffi exist
+            if c_material[material][co2e]:
+                c_in_material = (c_material[material][co2e] * mass_fresh) / c2co2 # c/kg
+                
+
+            # calculate C in material if eec coeffi exist
             else :
-                co2_manuf = 0
-                co2_sourcing = 0 
-                # if material was manufactored
-                if values["manufacturing_energy_id"]:
-                    # kgCO2 = kg * MJ/kg * kgCO2/MJ
-                    co2_manuf = values["mass"] * c_material[material][manuf_eec] * next(x["emission_factor"] for x in energy_sources if int(x["id"]) == int(values["manufacturing_energy_id"]))
+                c_manuf = 0
+                c_sourcing = 0 
+
                 # if material was sourced
                 if values["sourcing_energy_id"]:
-                    # kgCO2 = kg * MJ/kg * kgCO2/MJ
-                    co2_sourcing = values["mass"] * c_material[material][sourcing_eec] * next(x["emission_factor"] for x in energy_sources if int(x["id"]) == int(values["sourcing_energy_id"]))
-                
-                co2_in_material = co2_sourcing + co2_manuf
+                    # kgC = kg * MJ/kg * kgC/MJ
+                    c_sourcing = mass_fresh * c_material[material][sourcing_eec] * next(x["emission_factor"] for x in energy_sources if int(x["id"]) == int(values["sourcing_energy_id"]))
+                    print("----sourc", material, mass_fresh, values["mass"], c_material[material][sourcing_eec], next(x["emission_factor"] for x in energy_sources if int(x["id"]) == int(values["sourcing_energy_id"])),"EMITTED", c_sourcing )
+  
 
-            total = total + co2_in_material
-        #logger.info(f"Building carbon stored: {total/ c2co2} kgC")
-        return total / c2co2
+                # if material was manufactored
+                if values["manufacturing_energy_id"]:
+                    # kgC = kg * MJ/kg * kgC/MJ
+                    c_manuf = mass_fresh * c_material[material][manuf_eec] * next(x["emission_factor"] for x in energy_sources if int(x["id"]) == int(values["manufacturing_energy_id"]))
+                    print("----manuf", material, mass_fresh, values["mass"], c_material[material][manuf_eec], next(x["emission_factor"] for x in energy_sources if int(x["id"]) == int(values["manufacturing_energy_id"]) ),"EMITTED",  c_manuf)
+
+                c_in_material = c_sourcing + c_manuf
+                
+            total = total + c_in_material
+        #logger.info(f"Building carbon stored: {total} kgC")
+        return total 
     except Exception as e:
         logger.exception(e)
 
